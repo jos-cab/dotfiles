@@ -1,0 +1,7 @@
+# ~/dotfiles/hypr/hyprpaper/config
+
+# Preload images into memory
+preload = ~/Pictures/Wallpapers/buttons.png
+
+# Set wallpapers for monitor
+wallpaper = HDMI-A-1,contain:/home/jos-cab/Pictures/Wallpapers/buttons.png
