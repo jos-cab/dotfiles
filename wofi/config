@@ -1,13 +1,28 @@
 # ~/.config/wofi/config
 
-# General settings
+# General
 mode=drun,run
-run-always_parse_args=true
-term=foot
+term=kitty
 allow_images=true
 hide_scroll=true
-insensitive=true
 prompt=
-height=40%
-width=20%
+height=35%
+width=18%
+columns=1
+location=center
+orientation=vertical
+line_wrap=off
+dynamic_lines=false
+gtk_dark=true
+no_actions=true
+normal_window=true
 
+# Behavior
+allow_markup=true
+parse_search=true
+display_generic=false
+matching=contains
+sort_order=alphabetical
+single_click=false
+image_size=32
+layer=overlay
