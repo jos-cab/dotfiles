@@ -1,0 +1,47 @@
+#!/usr/bin/env zsh
+# ===============================================================================
+# MODULAR ZSH CONFIGURATION
+# ===============================================================================
+# This configuration is split into multiple files for better organization:
+# - zinit.zsh: Plugin manager setup
+# - environment.zsh: Environment variables and shell options
+# - aliases.zsh: Command aliases and shortcuts
+# - functions.zsh: Custom shell functions
+# - completions.zsh: Completion system configuration
+# - plugins.zsh: Zsh plugins and their settings
+# - integrations.zsh: External tool integrations
+# ===============================================================================
+
+# Get the directory where this script is located
+ZSH_CONFIG_DIR="${${(%):-%x}:A:h}"
+
+# Source all configuration files in order
+source "$ZSH_CONFIG_DIR/zinit.zsh"        # Plugin manager (must be first)
+source "$ZSH_CONFIG_DIR/environment.zsh"  # Environment and shell settings
+source "$ZSH_CONFIG_DIR/aliases.zsh"      # Aliases and shortcuts
+source "$ZSH_CONFIG_DIR/functions.zsh"    # Custom functions
+source "$ZSH_CONFIG_DIR/completions.zsh"  # Completion system
+source "$ZSH_CONFIG_DIR/plugins.zsh"      # Zsh plugins (after completions)
+source "$ZSH_CONFIG_DIR/integrations.zsh" # External tool integrations
+
+# ===============================================================================
+# LOCAL CUSTOMIZATIONS
+# ===============================================================================
+# Source local customizations if they exist (not tracked in git)
+[ -f "$ZSH_CONFIG_DIR/local.zsh" ] && source "$ZSH_CONFIG_DIR/local.zsh"
+
+# ===============================================================================
+# PERFORMANCE PROFILING
+# ===============================================================================
+# Uncomment the following lines to profile zsh startup time:
+# zmodload zsh/zprof
+# Add 'zprof' at the end of this file to see the profiling results
+
+# ===============================================================================
+# FINAL SETUP
+# ===============================================================================
+# Ensure proper permissions on history file
+[ -f ~/.zsh_history ] && chmod 600 ~/.zsh_history
+
+# Print a welcome message (optional)
+# echo "🚀 Zsh configuration loaded successfully!"
