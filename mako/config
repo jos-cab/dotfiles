@@ -1,0 +1,25 @@
+# ~/dotfiles/mako/config
+
+# Global configuration
+max-history=5
+sort=-time
+icons=1
+markup=1
+history=1
+group-by=app-name
+output=""
+layer=top
+anchor=top-right
+default-timeout=5000
+
+# Style configuration
+background-color=#1c1c1cFF
+text-color=#bcbcbcFF
+border-color=#4C7899FF
+border-size=2
+border-radius=5
+padding=10
+margin=10
+width=300
+height=100
+
