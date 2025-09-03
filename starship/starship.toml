@@ -1,0 +1,41 @@
+# Starship Configuration
+# Minimal configuration to remove gaps and optimize spacing
+
+# Remove the blank line at the start of the prompt
+add_newline = false
+
+# Format string for the prompt
+format = """
+$all$character"""
+
+# Character configuration
+[character]
+success_symbol = "[❯](bold green)"
+error_symbol = "[❯](bold red)"
+vimcmd_symbol = "[❮](bold green)"
+
+# Directory configuration
+[directory]
+truncation_length = 3
+truncate_to_repo = true
+style = "bold cyan"
+
+# Git branch configuration
+[git_branch]
+symbol = " "
+style = "bold purple"
+
+# Git status configuration
+[git_status]
+style = "bold yellow"
+
+# Command duration
+[cmd_duration]
+min_time = 2_000
+style = "bold yellow"
+
+# Time configuration (optional, uncomment if you want time shown)
+# [time]
+# disabled = false
+# format = "[$time]($style) "
+# style = "bold dimmed white"
