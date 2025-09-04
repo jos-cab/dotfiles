@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# Script to adjust Hyprland gaps
+# Usage: adjust_gaps.sh <gaps_type> <operation>
+# gaps_type: "out" or "in"
+# operation: "inc" or "dec"
+
+GAPS_TYPE=$1
+OPERATION=$2
+ADJUSTMENT=5
+
+if [ "$GAPS_TYPE" = "out" ]; then
+    OPTION="general:gaps_out"
+elif [ "$GAPS_TYPE" = "in" ]; then
+    OPTION="general:gaps_in"
+else
+    echo "Invalid gaps type. Use 'out' or 'in'"
+    exit 1
+fi
+
+# Get current value
+CURRENT=$(hyprctl getoption $OPTION | head -1 | cut -d' ' -f3)
+
+if [ "$OPERATION" = "inc" ]; then
+    NEW_VALUE=$((CURRENT + ADJUSTMENT))
+elif [ "$OPERATION" = "dec" ]; then
+    NEW_VALUE=$((CURRENT - ADJUSTMENT))
+else
+    echo "Invalid operation. Use 'inc' or 'dec'"
+    exit 1
+fi
+
+# Apply new value
+hyprctl keyword $OPTION $NEW_VALUE
