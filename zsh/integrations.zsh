@@ -38,7 +38,7 @@ fi
 # ======= Bat Integration =======
 # Set bat theme
 if command -v bat >/dev/null 2>&1; then
-    export BAT_THEME="Catppuccin-mocha"
+    export BAT_THEME="Catppuccin Mocha"
 fi
 
 # ======= Delta Integration =======

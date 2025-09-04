@@ -72,7 +72,7 @@ export FZF_DEFAULT_OPTS="
 --height=40% --layout=reverse --border --margin=1 --padding=1"
 
 # Bat (cat replacement) settings
-export BAT_THEME="Catppuccin mocha"
+export BAT_THEME="Catppuccin Mocha"
 
 # ======= XDG Base Directory Specification =======
 export XDG_CONFIG_HOME="$HOME/.config"
