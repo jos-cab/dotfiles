@@ -19,7 +19,7 @@ It includes configurations for my shell, terminal, bar, launcher, notifications,
 -   **Terminal**: [Kitty](https://sw.kovidgoyal.net/kitty/)
 -   **Notification Daemon**: [Mako](https://github.com/emersion/mako)
 -   **Application Launcher**: [Wofi](https://hg.sr.ht/~scoopta/wofi)
--   **Wallpaper Manager**: [Hyprpaper](https://github.com/hyprland-community/hyprpaper)
+-   **Wallpaper Manager**: [Hyprpaper](https://github.com/hyprwm/hyprpaper)
 -   **Status Bar**: [Waybar](https://github.com/Alexays/Waybar)
 
 ## Installation
