@@ -1,0 +1,58 @@
+# imv Configuration File
+# Using Catppuccin Mocha color scheme
+
+[options]
+# Background color (Base color from Catppuccin Mocha)
+background = 1e1e2e
+
+# Overlay background color (Surface0) with alpha
+overlay_background_color = 313244
+overlay_background_alpha = c3
+
+# Overlay text color (Text) with alpha
+overlay_text_color = cdd6f4
+overlay_text_alpha = ff
+
+# Start fullscreen
+fullscreen = false
+
+# Initial window dimensions
+width = 1280
+height = 720
+
+# Scaling mode
+scaling_mode = full
+
+# Slideshow delay in seconds
+slideshow_duration = 0
+
+# Loop through images
+loop_input = true
+
+# Show overlay by default
+overlay = false
+
+# Font for overlay
+overlay_font = Monospace:24
+
+# Position overlay at top
+overlay_position_bottom = false
+
+# Title text
+title_text = imv
+
+# Upscaling method
+upscaling_method = linear
+
+# Custom binds for navigation
+[binds]
+# Movement
+<Right> = next
+<Left> = prev
+<Escape> = quit
+<Space> = next
+<BackSpace> = prev
+q = quit
+x = quit
+f = fullscreen
+h = overlay
