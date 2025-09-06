@@ -94,75 +94,53 @@ tooltip label {
 }
 
 /* Right modules - grouped together */
-#pulseaudio,
-#cpu,
-#memory,
-#temperature,
-#tray,
-#clock {
+
+.modules-right widget > * {
 	background: #181825;
-	padding: 0px 6px;
+	padding: 0px 4px;
 	margin: 4px 0px;
 	color: #cdd6f4;
-	min-height: 0;
+}
+
+.modules-right widget:first-child > * {
+	border-radius: 12px 0px 0px 12px;
+	padding-left: 15px;
+}
+
+.modules-right widget:last-child > * {
+	border-radius: 0px 12px 12px 0px;
+	margin-right: 10px;
+	padding-right: 15px;
 }
 
 #pulseaudio {
 	color: #89b4fa;
-	border-radius: 12px 0px 0px 12px;
-	margin-left: 20px;
-	margin-right: 0px;
-
-	padding-left: 15px;
 }
 
 #cpu {
 	color: #a6e3a1;
-	margin-left: 0px;
-	margin-right: 0px;
 }
 
 #memory {
 	color: #f9e2af;
-	margin-left: 0px;
-	margin-right: 0px;
 }
 
 #temperature {
 	color: #fab387;
-	margin-left: 0px;
-	margin-right: 0px;
 }
 
 #tray {
 	color: #b4befe;
-	margin-left: 0px;
-	margin-right: 0px;
+}
+
+#tray widget > * {
+	border-radius: 0;
+	padding: 0;
+	margin: 0 5px 0 0px;
 }
 
 #clock {
 	color: #cba6f7;
-	border-radius: 0px 12px 12px 0px;
-	margin-left: 0px;
-	margin-right: 20px;
-
-	padding-right: 15px;
-}
-
-/* Power button */
-#custom-power {
-	background: #f38ba8;
-	color: #1e1e2e;
-	border-radius: 50%;
-	margin: 4px 10px;
-	padding: 0 1.2em 0 1em;
-	font-size: 12px;
-	transition: all 0.3s ease-in-out;
-}
-
-#custom-power:hover {
-	background: #eba0ac;
-	color: #cdd6f4;
 }
 
 /* System tray */
@@ -182,6 +160,38 @@ tooltip label {
 	border-radius: 15px;
 }
 
+/* System tray */
+#tray > .passive {
+	-gtk-icon-effect: dim;
+}
+
+#tray > .needs-attention {
+	-gtk-icon-effect: highlight;
+	background-color: #f38ba8;
+}
+
+/* Power button */
+#custom-power {
+	background: #f38ba8;
+	color: #1e1e2e;
+	border-radius: 50%;
+	margin: 4px 10px;
+	padding: 0 14px 0 12px;
+	font-size: 12px;
+	transition: all 0.3s ease-in-out;
+}
+
+#custom-power:hover {
+	background: #eba0ac;
+}
+
+/* Temperature warnings */
+#temperature.critical {
+	background-color: #f38ba8;
+	color: #1e1e2e;
+	border-radius: 15px;
+}
+
 /* Audio muted */
 #pulseaudio.muted {
 	background-color: #313244;
@@ -189,11 +199,11 @@ tooltip label {
 }
 
 /* Hover effects */
-#pulseaudio:hover,
-#cpu:hover,
-#memory:hover,
-#temperature:hover,
-#clock:hover {
+.modules-right widget > *:hover {
 	background: #313244;
 	transition: all 0.3s ease-in-out;
+}
+
+#tray:hover {
+	background: #181825;
 }

@@ -9,11 +9,11 @@
 	"modules-left": ["custom/power", "hyprland/workspaces"],
 	"modules-center": ["hyprland/window"],
 	"modules-right": [
+		"tray",
 		"pulseaudio",
 		"cpu",
 		"memory",
 		"temperature",
-		"tray",
 		"clock"
 	],
 	// Modules configuration
