@@ -80,7 +80,8 @@
 
 	"custom/power": {
 		"format": "⏻",
-		"tooltip": false,
+		"tooltip": true,
+		"tooltip-format": "Shutdown/Reboot",
 		"on-click": "systemctl poweroff",
 		"on-click-right": "systemctl reboot"
 	}
