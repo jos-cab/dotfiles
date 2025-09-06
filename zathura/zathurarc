@@ -1,0 +1,59 @@
+# Zathura configuration file
+# Using Catppuccin Mocha color scheme from dotfiles
+
+# Default settings
+set selection-clipboard clipboard
+set adjust-open "best-fit"
+set zoom-min 10
+set zoom-max 500
+
+# Recolor settings (for dark mode)
+set recolor true
+set recolor-keephue true
+
+# Color scheme - Catppuccin Mocha
+# Based on colors from kitty config and hyprland appearance
+
+# Background and foreground
+set default-bg "#1e1e2e"  # Base
+set default-fg "#cdd6f4"  # Text
+
+# Recolor (dark mode) - swap fg/bg for better reading
+set recolor-lightcolor "#1e1e2e"  # Base (background)
+set recolor-darkcolor "#cdd6f4"   # Text (foreground)
+
+# Selection colors
+set highlight-color "#f5e0dc"     # Rosewater
+set highlight-active-color "#89b4fa"  # Blue
+
+# Status bar colors
+set statusbar-fg "#cdd6f4"        # Text
+set statusbar-bg "#313244"        # Surface0
+
+# Notification/error colors
+set notification-bg "#f38ba8"     # Red
+set notification-fg "#1e1e2e"     # Base
+set notification-error-bg "#f38ba8"  # Red
+set notification-error-fg "#1e1e2e"  # Base
+set notification-warning-bg "#f9e2af"  # Yellow
+set notification-warning-fg "#1e1e2e"  # Base
+
+# Input bar colors
+set inputbar-bg "#313244"         # Surface0
+set inputbar-fg "#cdd6f4"         # Text
+
+# Completion colors
+set completion-bg "#45475a"       # Surface1
+set completion-fg "#cdd6f4"       # Text
+set completion-highlight-bg "#89b4fa"  # Blue
+set completion-highlight-fg "#1e1e2e"  # Base
+
+# Index mode colors
+set index-bg "#1e1e2e"            # Base
+set index-fg "#cdd6f4"            # Text
+set index-active-bg "#89b4fa"     # Blue
+set index-active-fg "#1e1e2e"     # Base
+
+# Render colors (for transparency effects)
+set render-loading-bg "#1e1e2e"   # Base
+set render-loading-fg "#cdd6f4"   # Text
