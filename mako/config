@@ -15,7 +15,7 @@ default-timeout=5000
 # Style configuration
 background-color=#1c1c1cFF
 text-color=#bcbcbcFF
-border-color=#4C7899FF
+border-color=#cba6f7ee
 border-size=2
 border-radius=5
 padding=10
