@@ -86,7 +86,7 @@ link_directory_recursively() {
     local source_base="$2"
     
     # Validate inputs
-    if [[ -z "$dest_base" || -z "$source_base" ]]; then
+    if [ -z "$dest_base" ] || [ -z "$source_base" ]; then
         echo "Error: link_directory_recursively requires both destination and source base paths"
         return 1
     fi
@@ -96,7 +96,10 @@ link_directory_recursively() {
         # Get relative path from source base
         rel_path="${item#$source_base/}"
         if [[ -n "$rel_path" ]]; then
-            create_symlink "$dest_base/$rel_path" "$item"
+            # Only create symlink if the item is a regular file or directory (not already a symlink)
+            if [ -f "$item" ] || [ -d "$item" ]; then
+                create_symlink "$dest_base/$rel_path" "$item"
+            fi
         fi
     done < <(find "$source_base" -mindepth 1 -not -path "*/.git/*" -print0)
 }
@@ -171,19 +174,25 @@ fi
 if [ -d "$DOTFILES_DIR/ranger" ]; then
     mkdir -p "$CONFIG_DIR/ranger"
     for file in "$DOTFILES_DIR/ranger"/*; do
-        # Skip colorschemes and plugins directories as we'll handle them separately
-        if [ "$(basename "$file")" = "colorschemes" ] || [ "$(basename "$file")" = "plugins" ]; then
+        # Skip colorschemes, plugins, and rc.conf.d directories as we'll handle them separately
+        filename=$(basename "$file")
+        if [ "$filename" = "colorschemes" ] || [ "$filename" = "plugins" ] || [ "$filename" = "rc.conf.d" ]; then
             continue
         fi
         if [ -f "$file" ] || [ -d "$file" ]; then
-            filename=$(basename "$file")
             create_symlink "$CONFIG_DIR/ranger/$filename" "$file"
         fi
     done
     
-    # Handle rc.conf.d directory
+    # Handle rc.conf.d directory - create directory and link individual files
     if [ -d "$DOTFILES_DIR/ranger/rc.conf.d" ]; then
-        link_directory_recursively "$CONFIG_DIR/ranger/rc.conf.d" "$DOTFILES_DIR/ranger/rc.conf.d"
+        mkdir -p "$CONFIG_DIR/ranger/rc.conf.d"
+        for file in "$DOTFILES_DIR/ranger/rc.conf.d"/*; do
+            if [ -f "$file" ]; then
+                filename=$(basename "$file")
+                create_symlink "$CONFIG_DIR/ranger/rc.conf.d/$filename" "$file"
+            fi
+        done
     fi
     
     # Link colorschemes directory
@@ -225,6 +234,17 @@ if [ -d "$DOTFILES_DIR/waybar" ]; then
             create_symlink "$CONFIG_DIR/waybar/$filename" "$file"
         fi
     done
+    
+    # Link scripts directory if it exists
+    if [ -d "$DOTFILES_DIR/waybar/scripts" ]; then
+        mkdir -p "$CONFIG_DIR/waybar/scripts"
+        for script in "$DOTFILES_DIR/waybar/scripts"/*; do
+            if [ -f "$script" ]; then
+                scriptname=$(basename "$script")
+                create_symlink "$CONFIG_DIR/waybar/scripts/$scriptname" "$script"
+            fi
+        done
+    fi
 fi
 
 # Link wofi configs
