@@ -82,7 +82,7 @@ bindkey '\eOF' end-of-line
 bindkey '\e[3~' delete-char
 
 # Ctrl+Delete to delete a word forward
-bindkey '\e[3;5~' delete-word
+bindkey '\e[3;5~' kill-word
 
 # Ctrl+Arrow keys for word navigation (various terminal compatibility)
 bindkey '\e[1;5D' backward-word
