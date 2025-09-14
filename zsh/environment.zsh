@@ -49,6 +49,47 @@ setopt MULTIOS
 setopt NO_BEEP
 setopt PROMPT_SUBST
 
+# ======= Key Bindings =======
+# Enable emacs keybindings for standard navigation keys
+bindkey -e
+
+# Standard key bindings for navigation
+bindkey '^A' beginning-of-line
+bindkey '^E' end-of-line
+bindkey '^B' backward-char
+bindkey '^F' forward-char
+bindkey '^D' delete-char
+bindkey '^K' kill-line
+bindkey '^U' kill-whole-line
+bindkey '^W' backward-kill-word
+bindkey '^Y' yank
+
+# Word navigation
+bindkey '^[b' backward-word
+bindkey '^[f' forward-word
+
+# Home/End keys (various terminal compatibility)
+bindkey '\e[1~' beginning-of-line
+bindkey '\e[4~' end-of-line
+bindkey '\e[7~' beginning-of-line
+bindkey '\e[8~' end-of-line
+bindkey '\e[H' beginning-of-line
+bindkey '\e[F' end-of-line
+bindkey '\eOH' beginning-of-line
+bindkey '\eOF' end-of-line
+
+# Delete key
+bindkey '\e[3~' delete-char
+
+# Ctrl+Delete to delete a word forward
+bindkey '\e[3;5~' delete-word
+
+# Ctrl+Arrow keys for word navigation (various terminal compatibility)
+bindkey '\e[1;5D' backward-word
+bindkey '\e[1;5C' forward-word
+bindkey '\e[5D' backward-word
+bindkey '\e[5C' forward-word
+
 # ======= Language and Locale =======
 export LANG=C.utf8
 export LC_ALL=C.utf8
