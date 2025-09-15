@@ -229,8 +229,12 @@ fi
 if [ -d "$DOTFILES_DIR/waybar" ]; then
     mkdir -p "$CONFIG_DIR/waybar"
     for file in "$DOTFILES_DIR/waybar"/*; do
-        if [ -f "$file" ]; then
-            filename=$(basename "$file")
+        # Skip scripts directory as we'll handle it separately
+        filename=$(basename "$file")
+        if [ "$filename" = "scripts" ]; then
+            continue
+        fi
+        if [ -f "$file" ] || [ -d "$file" ]; then
             create_symlink "$CONFIG_DIR/waybar/$filename" "$file"
         fi
     done
