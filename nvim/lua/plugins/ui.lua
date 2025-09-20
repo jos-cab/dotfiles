@@ -1,11 +1,8 @@
 return {
-  -- Configure blink.cmp (LazyVim's default completion engine)
+  -- Configure blink.cmp keybindings (sources configured in codeium.lua)
   {
     "saghen/blink.cmp",
     opts = {
-      sources = {
-        default = { "lsp", "path", "snippets", "buffer" },
-      },
       keymap = {
         preset = "default",
         ["<CR>"] = { "accept", "fallback" },
