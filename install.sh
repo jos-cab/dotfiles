@@ -2,6 +2,7 @@
 
 # Dotfiles installation script
 # Creates symlinks from ~/.config to dotfiles directory
+# Usage: ./install.sh
 
 set -e  # Exit on any error
 
@@ -31,20 +32,19 @@ check_system() {
     fi
 }
 
-# Check if dotfiles directory exists
-check_dotfiles_dir() {
-    if [ ! -d "$DOTFILES_DIR" ]; then
-        log_error "Dotfiles directory $DOTFILES_DIR does not exist!"
-        exit 1
-    fi
-}
 
-DOTFILES_DIR="$HOME/dotfiles"
+
+DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG_DIR="$HOME/.config"
 
 # Validate environment
 check_system
-check_dotfiles_dir
+
+# Check if we have the expected directories
+if [ ! -d "$DOTFILES_DIR/kitty" ] && [ ! -d "$DOTFILES_DIR/hyprland" ]; then
+    log_error "This doesn't appear to be a dotfiles directory. Expected to find kitty or hyprland directories."
+    exit 1
+fi
 
 log_info "Installing dotfiles..."
 log_info "Dotfiles directory: $DOTFILES_DIR"
@@ -79,35 +79,13 @@ create_symlink() {
     ln -sf "$source" "$dest"
 }
 
-# Function to recursively link directory contents
-# $1 = destination base path, $2 = source base path
-link_directory_recursively() {
-    local dest_base="$1"
-    local source_base="$2"
-    
-    # Validate inputs
-    if [ -z "$dest_base" ] || [ -z "$source_base" ]; then
-        echo "Error: link_directory_recursively requires both destination and source base paths"
-        return 1
-    fi
-    
-    # Find all files and directories (excluding .git) and link them
-    while IFS= read -r -d '' item; do
-        # Get relative path from source base
-        rel_path="${item#$source_base/}"
-        if [[ -n "$rel_path" ]]; then
-            # Only create symlink if the item is a regular file or directory (not already a symlink)
-            if [ -f "$item" ] || [ -d "$item" ]; then
-                create_symlink "$dest_base/$rel_path" "$item"
-            fi
-        fi
-    done < <(find "$source_base" -mindepth 1 -not -path "*/.git/*" -print0)
-}
 
-# Link ananicy directory (with full recursive structure)
+
+# Link ananicy configs
 if [ -d "$DOTFILES_DIR/ananicy" ]; then
-    # For ananicy, we'll create symlinks for files and directories directly
-    # This preserves the directory structure without creating circular references
+    mkdir -p "$CONFIG_DIR/ananicy"
+    
+    # Link all files and directories in ananicy directory
     for item in "$DOTFILES_DIR/ananicy"/*; do
         if [ -e "$item" ]; then
             filename=$(basename "$item")
@@ -118,27 +96,15 @@ fi
 
 # Link hyprland configs to hypr directory
 if [ -d "$DOTFILES_DIR/hyprland" ]; then
-    # Create hypr directory
     mkdir -p "$CONFIG_DIR/hypr"
     
-    # Link all files in hyprland directory
-    for file in "$DOTFILES_DIR/hyprland"/*; do
-        if [ -f "$file" ]; then
-            filename=$(basename "$file")
-            create_symlink "$CONFIG_DIR/hypr/$filename" "$file"
+    # Link all files and directories in hyprland directory
+    for item in "$DOTFILES_DIR/hyprland"/*; do
+        if [ -e "$item" ]; then
+            filename=$(basename "$item")
+            create_symlink "$CONFIG_DIR/hypr/$filename" "$item"
         fi
     done
-    
-    # Link scripts directory if it exists
-    if [ -d "$DOTFILES_DIR/hyprland/scripts" ]; then
-        mkdir -p "$CONFIG_DIR/hypr/scripts"
-        for script in "$DOTFILES_DIR/hyprland/scripts"/*; do
-            if [ -f "$script" ]; then
-                scriptname=$(basename "$script")
-                create_symlink "$CONFIG_DIR/hypr/scripts/$scriptname" "$script"
-            fi
-        done
-    fi
 fi
 
 # Link hyprpaper config
@@ -173,45 +139,14 @@ fi
 # Link ranger configs
 if [ -d "$DOTFILES_DIR/ranger" ]; then
     mkdir -p "$CONFIG_DIR/ranger"
-    for file in "$DOTFILES_DIR/ranger"/*; do
-        # Skip colorschemes, plugins, and rc.conf.d directories as we'll handle them separately
-        filename=$(basename "$file")
-        if [ "$filename" = "colorschemes" ] || [ "$filename" = "plugins" ] || [ "$filename" = "rc.conf.d" ]; then
-            continue
-        fi
-        if [ -f "$file" ] || [ -d "$file" ]; then
-            create_symlink "$CONFIG_DIR/ranger/$filename" "$file"
+    
+    # Link all files and directories in ranger
+    for item in "$DOTFILES_DIR/ranger"/*; do
+        if [ -e "$item" ]; then
+            filename=$(basename "$item")
+            create_symlink "$CONFIG_DIR/ranger/$filename" "$item"
         fi
     done
-    
-    # Handle rc.conf.d directory - create directory and link individual files
-    if [ -d "$DOTFILES_DIR/ranger/rc.conf.d" ]; then
-        mkdir -p "$CONFIG_DIR/ranger/rc.conf.d"
-        for file in "$DOTFILES_DIR/ranger/rc.conf.d"/*; do
-            if [ -f "$file" ]; then
-                filename=$(basename "$file")
-                create_symlink "$CONFIG_DIR/ranger/rc.conf.d/$filename" "$file"
-            fi
-        done
-    fi
-    
-    # Link colorschemes directory
-    if [ -d "$DOTFILES_DIR/ranger/colorschemes" ]; then
-        link_directory_recursively "$CONFIG_DIR/ranger/colorschemes" "$DOTFILES_DIR/ranger/colorschemes"
-    fi
-    
-    # Plugins
-    if [ -d "$DOTFILES_DIR/ranger/plugins" ]; then
-        mkdir -p "$CONFIG_DIR/ranger/plugins"
-        for dir in "$DOTFILES_DIR/ranger/plugins"/*/; do
-            if [ -d "$dir" ]; then
-                dirname=$(basename "$dir")
-                # Remove trailing slash
-                dir="${dir%/}"
-                create_symlink "$CONFIG_DIR/ranger/plugins/$dirname" "$dir"
-            fi
-        done
-    fi
 fi
 
 # Link starship config
@@ -228,27 +163,14 @@ fi
 # Link waybar configs
 if [ -d "$DOTFILES_DIR/waybar" ]; then
     mkdir -p "$CONFIG_DIR/waybar"
-    for file in "$DOTFILES_DIR/waybar"/*; do
-        # Skip scripts directory as we'll handle it separately
-        filename=$(basename "$file")
-        if [ "$filename" = "scripts" ]; then
-            continue
-        fi
-        if [ -f "$file" ] || [ -d "$file" ]; then
-            create_symlink "$CONFIG_DIR/waybar/$filename" "$file"
+    
+    # Link all files and directories in waybar directory
+    for item in "$DOTFILES_DIR/waybar"/*; do
+        if [ -e "$item" ]; then
+            filename=$(basename "$item")
+            create_symlink "$CONFIG_DIR/waybar/$filename" "$item"
         fi
     done
-    
-    # Link scripts directory if it exists
-    if [ -d "$DOTFILES_DIR/waybar/scripts" ]; then
-        mkdir -p "$CONFIG_DIR/waybar/scripts"
-        for script in "$DOTFILES_DIR/waybar/scripts"/*; do
-            if [ -f "$script" ]; then
-                scriptname=$(basename "$script")
-                create_symlink "$CONFIG_DIR/waybar/scripts/$scriptname" "$script"
-            fi
-        done
-    fi
 fi
 
 # Link wofi configs
