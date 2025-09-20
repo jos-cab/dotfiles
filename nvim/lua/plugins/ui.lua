@@ -1,22 +1,36 @@
 return {
-  -- Enhanced completion with emoji support
+  -- Configure blink.cmp (LazyVim's default completion engine)
   {
-    "hrsh7th/nvim-cmp",
-    dependencies = { "hrsh7th/cmp-emoji" },
-    opts = function(_, opts)
-      table.insert(opts.sources, { name = "emoji" })
-    end,
+    "saghen/blink.cmp",
+    opts = {
+      sources = {
+        default = { "lsp", "path", "snippets", "buffer" },
+      },
+      keymap = {
+        preset = "default",
+      },
+    },
   },
 
-  -- Trouble configuration
+  -- Trouble configuration for better diagnostics
   {
     "folke/trouble.nvim",
-    opts = { use_diagnostic_signs = true },
+    opts = {
+      use_diagnostic_signs = true,
+      auto_close = true,
+      auto_preview = true,
+    },
   },
 
-  -- Disable alpha dashboard to avoid conflicts
+  -- Disable alpha dashboard (we don't need a start screen)
   {
     "goolord/alpha-nvim",
+    enabled = false,
+  },
+
+  -- Disable nvim-cmp since we're using blink.cmp
+  {
+    "hrsh7th/nvim-cmp",
     enabled = false,
   },
 }
