@@ -21,16 +21,4 @@ return {
       auto_preview = true,
     },
   },
-
-  -- Disable alpha dashboard (we don't need a start screen)
-  {
-    "goolord/alpha-nvim",
-    enabled = false,
-  },
-
-  -- Disable nvim-cmp since we're using blink.cmp
-  {
-    "hrsh7th/nvim-cmp",
-    enabled = false,
-  },
 }
