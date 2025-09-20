@@ -59,51 +59,45 @@ class Catppuccin(ColorScheme):
             if context.main_column:
                 if context.marked:
                     attr |= bold
-                if context.selected:
-                    attr |= reverse
+                    fg = yellow
             if context.badinfo:
                 if attr & reverse:
-                    bg = 5
+                    bg = magenta
                 else:
-                    fg = 5
+                    fg = magenta
 
         elif context.in_titlebar:
+            attr |= bold
             if context.hostname:
-                fg = 1 if context.bad else 2
+                fg = context.bad and red or green
             elif context.directory:
-                fg = 4
+                fg = blue
             elif context.tab:
                 if context.good:
-                    bg = 2
+                    bg = green
             elif context.link:
-                fg = 6
+                fg = cyan
 
         elif context.in_statusbar:
             if context.permissions:
                 if context.good:
-                    fg = 2
+                    fg = cyan
                 elif context.bad:
-                    fg = 1
+                    fg = magenta
             if context.marked:
                 attr |= bold | reverse
-                fg = 8
-            if context.frozen:
-                attr |= bold | reverse
-                fg = 6
+                fg = yellow
             if context.message:
                 if context.bad:
                     attr |= bold
-                    fg = 1
+                    fg = red
             if context.loaded:
                 bg = self.progress_bar_color
             if context.vcsinfo:
-                fg = 4
+                fg = blue
                 attr &= ~bold
             if context.vcscommit:
-                fg = 3
-                attr &= ~bold
-            if context.vcsdate:
-                fg = 6
+                fg = yellow
                 attr &= ~bold
 
         if context.text:

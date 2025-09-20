@@ -1,0 +1,1 @@
+# Ranger plugins directory
