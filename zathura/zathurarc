@@ -1,6 +1,7 @@
 # Zathura configuration file
 # Using Catppuccin Mocha color scheme from dotfiles
 
+# TODO: open best fit by default
 # Default settings
 set selection-clipboard clipboard
 set adjust-open "best-fit"
