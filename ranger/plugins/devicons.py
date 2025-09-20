@@ -281,31 +281,35 @@ DIRECTORY_ICONS = {
 
 def get_icon(filename, is_directory=False):
     """Get icon for a file or directory"""
-    if is_directory:
-        return DIRECTORY_ICONS.get(filename.lower(), '')
-    
-    # Check filename first
-    if filename in FILENAME_ICONS:
-        return FILENAME_ICONS[filename]
-    
-    # Check by extension
-    if '.' in filename:
-        ext = filename.split('.')[-1].lower()
-        return EXTENSION_ICONS.get(ext, '')
-    
-    return ''
+    try:
+        if is_directory:
+            return DIRECTORY_ICONS.get(filename.lower(), '')
+        
+        # Check filename first
+        if filename in FILENAME_ICONS:
+            return FILENAME_ICONS[filename]
+        
+        # Check by extension
+        if '.' in filename:
+            ext = filename.split('.')[-1].lower()
+            return EXTENSION_ICONS.get(ext, '')
+        
+        return ''
+    except Exception:
+        # Return empty string if anything goes wrong
+        return ''
 
+@ranger.api.register_linemode
 class DeviconsLinemode(LinemodeBase):
     name = "devicons"
     uses_metadata = False
 
     def filetitle(self, file, metadata):
-        icon = get_icon(file.basename, file.is_directory)
-        if icon:
-            return WideString(f"{icon} {file.basename}")
-        return file.basename
-
-# Register the linemode
-@ranger.api.register_linemode
-class DeviconsLinemodeRegistered(DeviconsLinemode):
-    pass
+        try:
+            icon = get_icon(file.basename, file.is_directory)
+            if icon:
+                return f"{icon} {file.basename}"
+            return file.basename
+        except Exception:
+            # Fallback to just filename if anything goes wrong
+            return file.basename
