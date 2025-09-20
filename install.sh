@@ -144,6 +144,19 @@ if [ -f "$DOTFILES_DIR/mako/config" ]; then
     create_symlink "$CONFIG_DIR/mako/config" "$DOTFILES_DIR/mako/config"
 fi
 
+# Link nvim configs
+if [ -d "$DOTFILES_DIR/nvim" ]; then
+    mkdir -p "$CONFIG_DIR/nvim"
+    
+    # Link all files and directories in nvim directory
+    for item in "$DOTFILES_DIR/nvim"/*; do
+        if [ -e "$item" ]; then
+            filename=$(basename "$item")
+            create_symlink "$CONFIG_DIR/nvim/$filename" "$item"
+        fi
+    done
+fi
+
 # Link ranger configs
 if [ -d "$DOTFILES_DIR/ranger" ]; then
     mkdir -p "$CONFIG_DIR/ranger"
