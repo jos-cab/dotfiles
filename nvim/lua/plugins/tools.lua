@@ -1,7 +1,7 @@
 return {
-  -- Mason tool installer
+  -- Mason tool installer - only essential tools
   {
-    "mason-org/mason.nvim",
+    "williamboman/mason.nvim",
     opts = {
       ensure_installed = {
         -- Lua
@@ -11,18 +11,32 @@ return {
         "shfmt",
         -- Python
         "black",
-        "isort",
-        "flake8",
+        "ruff",
         -- JavaScript/TypeScript
         "prettier",
-        "eslint_d",
-        -- Go
-        "gofumpt",
-        "goimports",
-        -- Rust
-        "rustfmt",
-        -- C/C++
-        "clang-format",
+        -- JSON/YAML
+        "jq",
+      },
+    },
+  },
+
+  -- Configure conform for formatting
+  {
+    "stevearc/conform.nvim",
+    opts = {
+      formatters_by_ft = {
+        lua = { "stylua" },
+        python = { "black", "ruff_format" },
+        javascript = { "prettier" },
+        typescript = { "prettier" },
+        json = { "prettier" },
+        yaml = { "prettier" },
+        markdown = { "prettier" },
+        sh = { "shfmt" },
+      },
+      format_on_save = {
+        timeout_ms = 500,
+        lsp_fallback = true,
       },
     },
   },
