@@ -63,7 +63,6 @@ EXTENSION_ICONS = {
 
 # Filename to icon mapping
 FILENAME_ICONS = {
-    # Config files
     'Dockerfile': '🐳',
     'Makefile': '🔧',
     'package.json': '📦',
@@ -100,39 +99,27 @@ DIRECTORY_ICONS = {
 
 def get_icon(filename, is_directory=False):
     """Get icon for a file or directory"""
-    try:
-        if is_directory:
-            return DIRECTORY_ICONS.get(filename.lower(), '')
-        
-        # Check filename first
-        if filename in FILENAME_ICONS:
-            return FILENAME_ICONS[filename]
-        
-        # Check by extension
-        if '.' in filename:
-            ext = filename.split('.')[-1].lower()
-            return EXTENSION_ICONS.get(ext, '')
-        
-        return ''
-    except Exception:
-        # Return empty string if anything goes wrong
-        return ''
+    if is_directory:
+        return DIRECTORY_ICONS.get(filename.lower(), '📁')
+    
+    # Check filename first
+    if filename in FILENAME_ICONS:
+        return FILENAME_ICONS[filename]
+    
+    # Check by extension
+    if '.' in filename:
+        ext = filename.split('.')[-1].lower()
+        return EXTENSION_ICONS.get(ext, '📄')
+    
+    return '📄'
 
 class DeviconsLinemode(LinemodeBase):
     name = "devicons"
     uses_metadata = False
 
     def filetitle(self, file, metadata):
-        try:
-            if hasattr(file, 'basename') and hasattr(file, 'is_directory'):
-                icon = get_icon(file.basename, file.is_directory)
-                if icon:
-                    return f"{icon} {file.basename}"
-                return file.basename
-            return str(file)
-        except Exception:
-            # Fallback to just filename if anything goes wrong
-            return str(file) if file else ""
+        icon = get_icon(file.basename, file.is_directory)
+        return f"{icon} {file.basename}"
 
 # Register the linemode
 ranger.api.register_linemode(DeviconsLinemode)
