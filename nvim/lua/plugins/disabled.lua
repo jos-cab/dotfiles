@@ -1,11 +1,20 @@
--- Disable unnecessary plugins to reduce startup time and complexity
+-- Permanently remove unwanted plugins
 return {
-  -- Disable plugins we don't need
+  -- Remove start screens completely
   { "goolord/alpha-nvim", enabled = false },
-  { "hrsh7th/nvim-cmp", enabled = false },
-  { "folke/tokyonight.nvim", enabled = false }, -- We use catppuccin
   { "nvim-mini/mini.starter", enabled = false },
-  { "rcarriga/nvim-notify", enabled = false }, -- Use snacks.nvim notifications
-  { "folke/persistence.nvim", enabled = false }, -- Don't need session persistence
-  { "nvim-pack/nvim-spectre", enabled = false }, -- grug-far is better
+  
+  -- Remove old completion system (we use blink.cmp)
+  { "hrsh7th/nvim-cmp", enabled = false },
+  
+  -- Remove unused themes
+  { "folke/tokyonight.nvim", enabled = false },
+  
+  -- Remove markdown plugins I added (you don't want them)
+  { "iamcco/markdown-preview.nvim", enabled = false },
+  { "plasticboy/vim-markdown", enabled = false },
+  
+  -- Remove other potentially unwanted plugins
+  { "rcarriga/nvim-notify", enabled = false }, -- Use snacks.nvim notifications instead
+  { "nvim-pack/nvim-spectre", enabled = false }, -- Use grug-far instead
 }
