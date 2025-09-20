@@ -1,20 +1,15 @@
--- Permanently remove unwanted plugins
+-- Disable only the LazyVim default plugins that are actually installed but we don't want
 return {
-  -- Remove start screens completely
+  -- Themes we don't use (we use catppuccin)
+  { "folke/tokyonight.nvim", enabled = false },
+  
+  -- Start screens (disable both)
   { "goolord/alpha-nvim", enabled = false },
   { "nvim-mini/mini.starter", enabled = false },
   
-  -- Remove old completion system (we use blink.cmp)
+  -- Old completion system (we use blink.cmp)
   { "hrsh7th/nvim-cmp", enabled = false },
   
-  -- Remove unused themes
-  { "folke/tokyonight.nvim", enabled = false },
-  
-  -- Remove markdown plugins I added (you don't want them)
-  { "iamcco/markdown-preview.nvim", enabled = false },
-  { "plasticboy/vim-markdown", enabled = false },
-  
-  -- Remove other potentially unwanted plugins
-  { "rcarriga/nvim-notify", enabled = false }, -- Use snacks.nvim notifications instead
-  { "nvim-pack/nvim-spectre", enabled = false }, -- Use grug-far instead
+  -- Session management (if you don't use sessions)
+  { "folke/persistence.nvim", enabled = false },
 }
