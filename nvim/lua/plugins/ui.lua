@@ -1,7 +1,4 @@
 return {
-  -- Use mini.starter instead of alpha
-  { import = "lazyvim.plugins.extras.ui.mini-starter" },
-
   -- Enhanced completion with emoji support
   {
     "hrsh7th/nvim-cmp",
@@ -15,5 +12,11 @@ return {
   {
     "folke/trouble.nvim",
     opts = { use_diagnostic_signs = true },
+  },
+
+  -- Disable alpha dashboard to avoid conflicts
+  {
+    "goolord/alpha-nvim",
+    enabled = false,
   },
 }

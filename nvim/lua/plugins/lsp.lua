@@ -6,8 +6,6 @@ return {
       servers = {
         -- Python
         pyright = {},
-        -- TypeScript/JavaScript
-        tsserver = {},
         -- Lua
         lua_ls = {},
         -- Rust
@@ -16,11 +14,9 @@ return {
         gopls = {},
         -- C/C++
         clangd = {},
+        -- JSON
+        jsonls = {},
       },
     },
   },
-
-  -- Import language-specific extras
-  { import = "lazyvim.plugins.extras.lang.typescript" },
-  { import = "lazyvim.plugins.extras.lang.json" },
 }

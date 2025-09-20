@@ -2,8 +2,9 @@ return {
   -- Enhanced treesitter configuration
   {
     "nvim-treesitter/nvim-treesitter",
-    opts = {
-      ensure_installed = {
+    opts = function(_, opts)
+      -- Extend the default ensure_installed list instead of replacing it
+      vim.list_extend(opts.ensure_installed, {
         "bash",
         "c",
         "cpp",
@@ -24,7 +25,7 @@ return {
         "typescript",
         "vim",
         "yaml",
-      },
-    },
+      })
+    end,
   },
 }
