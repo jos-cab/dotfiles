@@ -6,6 +6,7 @@
 
 import ranger.api
 from ranger.core.linemode import LinemodeBase
+from ranger.ext.widestring import WideString
 
 # File extension to icon mapping
 EXTENSION_ICONS = {
@@ -301,8 +302,10 @@ class DeviconsLinemode(LinemodeBase):
     def filetitle(self, file, metadata):
         icon = get_icon(file.basename, file.is_directory)
         if icon:
-            return f"{icon} {file.basename}"
+            return WideString(f"{icon} {file.basename}")
         return file.basename
 
 # Register the linemode
-ranger.api.register_linemode(DeviconsLinemode)
+@ranger.api.register_linemode
+class DeviconsLinemodeRegistered(DeviconsLinemode):
+    pass
