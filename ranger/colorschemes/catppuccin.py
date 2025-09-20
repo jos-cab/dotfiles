@@ -38,8 +38,7 @@ class Catppuccin(ColorScheme):
                 fg = 4
             if context.directory:
                 fg = 4
-            elif context.executable and not \
-                    any(target.is_directory for target in context.targets):
+            elif context.executable and not context.directory:
                 fg = 2
             if context.socket:
                 fg = 5
