@@ -3,6 +3,8 @@
 # Dotfiles installation script
 # Creates symlinks from ~/.config to dotfiles directory
 # Usage: ./install.sh
+#
+# Note: Run 'git submodule update --init --recursive' first to initialize submodules
 
 set -e  # Exit on any error
 
@@ -44,6 +46,12 @@ check_system
 if [ ! -d "$DOTFILES_DIR/kitty" ] && [ ! -d "$DOTFILES_DIR/hyprland" ]; then
     log_error "This doesn't appear to be a dotfiles directory. Expected to find kitty or hyprland directories."
     exit 1
+fi
+
+# Check if submodules are initialized
+if [ -f "$DOTFILES_DIR/.gitmodules" ] && [ ! -f "$DOTFILES_DIR/ranger/plugins/ranger_devicons/devicons.py" ]; then
+    log_warn "Git submodules not initialized. Run 'git submodule update --init --recursive' first."
+    log_warn "Continuing installation, but some plugins may not work properly."
 fi
 
 log_info "Installing dotfiles..."
@@ -140,11 +148,26 @@ fi
 if [ -d "$DOTFILES_DIR/ranger" ]; then
     mkdir -p "$CONFIG_DIR/ranger"
     
-    # Link all files and directories in ranger
+    # Link all files and directories in ranger directory
     for item in "$DOTFILES_DIR/ranger"/*; do
         if [ -e "$item" ]; then
             filename=$(basename "$item")
-            create_symlink "$CONFIG_DIR/ranger/$filename" "$item"
+            
+            # Special handling for plugins directory
+            if [ "$filename" = "plugins" ]; then
+                mkdir -p "$CONFIG_DIR/ranger/plugins"
+                
+                # Link each plugin individually
+                for plugin in "$DOTFILES_DIR/ranger/plugins"/*; do
+                    if [ -e "$plugin" ]; then
+                        plugin_name=$(basename "$plugin")
+                        create_symlink "$CONFIG_DIR/ranger/plugins/$plugin_name" "$plugin"
+                    fi
+                done
+            else
+                # Link other files and directories normally
+                create_symlink "$CONFIG_DIR/ranger/$filename" "$item"
+            fi
         fi
     done
 fi
