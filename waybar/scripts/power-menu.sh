@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# HACK: only use confirm
 # Power menu using wofi
 SELECTION=$(echo -e "Shutdown\nReboot\nSleep\nLogout" | wofi --dmenu --prompt "Power Menu")
 
