@@ -42,6 +42,7 @@ def get_icon(filename, is_directory=False):
         return EXTENSION_ICONS.get(ext, '📄')
     return '📄'
 
+# Override the default filename linemode
 class DeviconsLinemode(LinemodeBase):
     name = "devicons"
     
@@ -49,23 +50,14 @@ class DeviconsLinemode(LinemodeBase):
         icon = get_icon(file.basename, file.is_directory)
         return f"{icon} {file.basename}"
 
-# Register the linemode
+# Also create a modified filename linemode that includes icons
+class FilenameWithIcons(LinemodeBase):
+    name = "filename"
+    
+    def filetitle(self, file, metadata):
+        icon = get_icon(file.basename, file.is_directory)
+        return f"{icon} {file.basename}"
+
+# Register both linemodes
 ranger.api.register_linemode(DeviconsLinemode)
-
-# Hook to automatically enable devicons when ranger starts
-def hook_init(fm):
-    try:
-        # Wait a bit for everything to load, then set devicons
-        import threading
-        def set_devicons():
-            try:
-                fm.execute_console("linemode devicons")
-            except:
-                pass
-        timer = threading.Timer(0.1, set_devicons)
-        timer.start()
-    except:
-        pass
-
-# Register the hook
-ranger.api.hook_init = hook_init
+ranger.api.register_linemode(FilenameWithIcons)
