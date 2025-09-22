@@ -34,10 +34,7 @@ return {
         markdown = { "prettier" },
         sh = { "shfmt" },
       },
-      format_on_save = {
-        timeout_ms = 500,
-        lsp_fallback = true,
-      },
+      -- format_on_save is handled by LazyVim automatically
     },
   },
 }
