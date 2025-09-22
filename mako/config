@@ -13,11 +13,12 @@ anchor=top-right
 default-timeout=5000
 
 # Style configuration
-background-color=#1c1c1cFF
-text-color=#bcbcbcFF
+# Catppuccin Mocha Theme
+background-color=#1e1e2eFF
+text-color=#cdd6f4FF
 border-color=#cba6f7ee
 border-size=2
-border-radius=5
+border-radius=12
 padding=10
 margin=10
 width=300
