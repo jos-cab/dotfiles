@@ -1,16 +1,25 @@
 # Zathura configuration file
 # Using Catppuccin Mocha color scheme from dotfiles
 
-# TODO: open best fit by default
 # Default settings
 set selection-clipboard clipboard
-set adjust-open "best-fit"
+set adjust-open "width"
 set zoom-min 10
 set zoom-max 500
+
+# Hide status bar at bottom
+set statusbar-h-padding 0
+set statusbar-v-padding 0
+set statusbar-basename true
+set guioptions ""
+
+# Default fit mode (fit width like 's' keybind)
+set adjust-open "width"
 
 # Recolor settings (for dark mode)
 set recolor true
 set recolor-keephue true
+set recolor-reverse-video true
 
 # Color scheme - Catppuccin Mocha
 # Based on colors from kitty config and hyprland appearance
@@ -19,13 +28,16 @@ set recolor-keephue true
 set default-bg "#1e1e2e"  # Base
 set default-fg "#cdd6f4"  # Text
 
-# Recolor (dark mode) - swap fg/bg for better reading
-set recolor-lightcolor "#1e1e2e"  # Base (background)
-set recolor-darkcolor "#cdd6f4"   # Text (foreground)
+# Recolor (dark mode) - optimized for Catppuccin Mocha
+set recolor-lightcolor "#1e1e2e"  # Base (background) - darker for better contrast
+set recolor-darkcolor "#f5e0dc"   # Rosewater (foreground) - warmer white for easier reading
 
 # Selection colors
 set highlight-color "#f5e0dc"     # Rosewater
 set highlight-active-color "#89b4fa"  # Blue
+
+# Link colors (for 'f' follow links mode) - improved contrast
+set highlight-transparency 0.8
 
 # Status bar colors
 set statusbar-fg "#cdd6f4"        # Text
@@ -57,4 +69,19 @@ set index-active-fg "#1e1e2e"     # Base
 
 # Render colors (for transparency effects)
 set render-loading-bg "#1e1e2e"   # Base
-set render-loading-fg "#cdd6f4"   # Text
+set render-loading-fg "#cdd6f4"   # Text# 
+Additional settings for better UX
+set scroll-step 50
+set scroll-hstep -1
+set scroll-wrap false
+set advance-pages-per-row false
+set continuous-hist-save true
+
+# Link highlighting improvements
+set link-zoom true
+set link-hadjust true
+set search-hadjust true
+
+# Window settings
+set window-title-basename true
+set window-title-page false
