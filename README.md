@@ -24,11 +24,17 @@ It includes configurations for my shell, terminal, bar, launcher, notifications,
 
 ## Installation
 
-1. Clone this repository:
+1. Clone this repository with submodules:
 
     ```bash
-    git clone https://github.com/jos-cab/dotfiles.git ~/.dotfiles
+    git clone --recurse-submodules https://github.com/jos-cab/dotfiles.git ~/.dotfiles
     cd ~/.dotfiles
+    ```
+
+    If you've already cloned the repository without submodules, run:
+
+    ```bash
+    git submodule update --init --recursive
     ```
 
 2. Make the installation script executable and run it:
@@ -40,14 +46,19 @@ It includes configurations for my shell, terminal, bar, launcher, notifications,
 
     The script will:
 
--   Ask if you want to install critical dependencies (Hyprland, Kitty, Waybar, etc.)
--   Offer to install an AUR helper (Paru) if you don’t have one
+-   Ask if you want to install required dependencies
+-   Check for an AUR helper (Paru or Yay) and use it to install AUR packages
+-   Ask if you want to backup existing configuration files
 -   Create symbolic links from this repo to your `~/.config`
--   Automatically back up any existing config files if you choose to
--   Set up your shell (`zsh`) to source your custom config
+-   Offer to set zsh as your default shell
 
-> ⚠️ Any existing configuration files will be backed up automatically if you choose to.
-> Backups are saved as `<filename>.bak` in the same directory.
+All prompts use single-key responses for a smoother experience.
+
+> ⚠️ By default, the script will ask if you want to backup existing configuration files.
+> If you choose to backup, files will be saved as `<filename>.bak` (or `<filename>.bak.1`, `<filename>.bak.2`, etc. if backups already exist) in the same directory.
+> If you choose not to backup, existing files will be removed.
+> 
+> The script uses single-key prompts for a smoother experience - just press the corresponding key, no need to press Enter.
 
 ## Key Features
 
@@ -78,7 +89,7 @@ It includes configurations for my shell, terminal, bar, launcher, notifications,
 
 ## Dependencies
 
-To use these configurations, you’ll need the following packages:
+The installation script can automatically install these dependencies for you, or you can install them manually:
 
 ```bash
 # Core components
@@ -94,6 +105,8 @@ paru -S hyprpaper   # or yay -S hyprpaper
 sudo pacman -S brightnessctl pavucontrol \
     xdg-desktop-portal-hyprland grim slurp wl-clipboard
 ```
+
+> Note: The install script will automatically detect if you have `paru` or `yay` installed for AUR packages. If neither is found, you'll need to manually install `hyprpaper`.
 
 ## Useful Resources
 

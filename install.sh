@@ -34,7 +34,53 @@ check_system() {
     fi
 }
 
+# Global variable to track if user wants backups
+DO_BACKUPS=false
 
+# Function to backup existing files
+backup_if_exists() {
+    local file="$1"
+    if [ -e "$file" ] || [ -L "$file" ]; then
+        local backup="${file}.bak"
+        local counter=1
+        # If backup already exists, create numbered backups
+        while [ -e "$backup" ] || [ -L "$backup" ]; do
+            backup="${file}.bak.${counter}"
+            ((counter++))
+        done
+        echo "Backing up $file -> $backup"
+        mv "$file" "$backup"
+    fi
+}
+
+# Function to create symlink with backup option
+# $1 = destination (.config path), $2 = source (dotfiles path)
+create_symlink() {
+    local dest="$1"
+    local source="$2"
+    
+    # Validate inputs
+    if [[ -z "$dest" || -z "$source" ]]; then
+        echo "Error: create_symlink requires both destination and source paths"
+        return 1
+    fi
+    
+    # Create parent directory if it doesn't exist
+    mkdir -p "$(dirname "$dest")"
+    
+    # Backup existing file/directory/link if it exists and user wants backups
+    if [ "$DO_BACKUPS" = true ]; then
+        backup_if_exists "$dest"
+    elif [ -e "$dest" ] || [ -L "$dest" ]; then
+        # If not backing up, just remove existing
+        echo "Removing existing $dest"
+        rm -rf "$dest"
+    fi
+    
+    # Create symlink from ~/.config to dotfiles
+    echo "Linking $dest -> $source"
+    ln -sf "$source" "$dest"
+}
 
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG_DIR="$HOME/.config"
@@ -52,42 +98,88 @@ fi
 if [ -f "$DOTFILES_DIR/.gitmodules" ] && [ ! -f "$DOTFILES_DIR/ranger/plugins/ranger_devicons/devicons.py" ]; then
     log_warn "Git submodules not initialized. Run 'git submodule update --init --recursive' first."
     log_warn "Continuing installation, but some plugins may not work properly."
+    echo "Would you like to initialize submodules now? (y/N)"
+    # Hide cursor during single character input
+    tput civis 2>/dev/null
+    read -n 1 -r response
+    # Show cursor again
+    tput cnorm 2>/dev/null
+    echo  # Move to a new line after single character input
+    if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+        response="y"
+    else
+        response="n"
+    fi
+    if [[ "$response" =~ ^([yY])$ ]]; then
+        git submodule update --init --recursive
+    fi
+fi
+
+# Ask user if they want to backup existing files
+echo
+echo "Would you like to backup existing configuration files? (Y/n)"
+# Hide cursor during single character input
+tput civis 2>/dev/null
+read -n 1 -r response
+# Show cursor again
+tput cnorm 2>/dev/null
+echo  # Move to a new line after single character input
+if [[ "$response" =~ ^([nN][oO]|[nN])$ ]]; then
+    response="n"
+elif [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]] || [[ "$response" == "" ]]; then
+    response="y"
+else
+    response="n"
+fi
+if [[ "$response" =~ ^([yY])$ ]]; then
+    DO_BACKUPS=true
 fi
 
 log_info "Installing dotfiles..."
 log_info "Dotfiles directory: $DOTFILES_DIR"
 log_info "Config directory: $CONFIG_DIR"
+log_info "Backup existing files: $DO_BACKUPS"
 
 # Create necessary directories if they don't exist
 mkdir -p "$CONFIG_DIR"
 
-# Function to create symlink
-# $1 = destination (.config path), $2 = source (dotfiles path)
-create_symlink() {
-    local dest="$1"
-    local source="$2"
-    
-    # Validate inputs
-    if [[ -z "$dest" || -z "$source" ]]; then
-        echo "Error: create_symlink requires both destination and source paths"
-        return 1
-    fi
-    
-    # Create parent directory if it doesn't exist
-    mkdir -p "$(dirname "$dest")"
-    
-    # Remove existing file/directory/link if it exists
-    if [ -e "$dest" ] || [ -L "$dest" ]; then
-        echo "Removing existing $dest"
-        rm -rf "$dest"
-    fi
-    
-    # Create symlink from ~/.config to dotfiles
-    echo "Linking $dest -> $source"
-    ln -sf "$source" "$dest"
-}
 
 
+# Ask user if they want to install dependencies
+echo
+echo "Would you like to install required dependencies? (y/N)"
+# Hide cursor during single character input
+tput civis 2>/dev/null
+read -n 1 -r response
+# Show cursor again
+tput cnorm 2>/dev/null
+echo  # Move to a new line after single character input
+if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+    response="y"
+else
+    response="n"
+fi
+if [[ "$response" =~ ^([yY])$ ]]; then
+    # Check if pacman is available
+    if command -v pacman &> /dev/null; then
+        log_info "Installing core components..."
+        sudo pacman -S hyprland kitty waybar wofi mako zsh starship brightnessctl pavucontrol xdg-desktop-portal-hyprland grim slurp wl-clipboard --noconfirm || log_warn "Failed to install some packages. Please install manually."
+        
+        # Check for AUR helper
+        if command -v paru &> /dev/null || command -v yay &> /dev/null; then
+            log_info "Installing AUR packages..."
+            if command -v paru &> /dev/null; then
+                paru -S hyprpaper --noconfirm || log_warn "Failed to install hyprpaper. Please install manually."
+            else
+                yay -S hyprpaper --noconfirm || log_warn "Failed to install hyprpaper. Please install manually."
+            fi
+        else
+            log_warn "No AUR helper found. Please install hyprpaper manually if needed."
+        fi
+    else
+        log_error "Package manager not found. Please install dependencies manually."
+    fi
+fi
 
 # Link ananicy configs
 if [ -d "$DOTFILES_DIR/ananicy" ]; then
@@ -235,6 +327,26 @@ if [ -d "$DOTFILES_DIR/zsh" ]; then
             create_symlink "$CONFIG_DIR/zsh/$filename" "$file"
         fi
     done
+    
+    # Set zsh as default shell if not already set
+    if [[ "$SHELL" != *"zsh"* ]]; then
+        echo
+        echo "Would you like to set zsh as your default shell? (y/N)"
+        # Hide cursor during single character input
+        tput civis 2>/dev/null
+        read -n 1 -r response
+        # Show cursor again
+        tput cnorm 2>/dev/null
+        echo  # Move to a new line after single character input
+        if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+            response="y"
+        else
+            response="n"
+        fi
+        if [[ "$response" =~ ^([yY])$ ]]; then
+            chsh -s "$(which zsh)" || log_warn "Failed to change shell. You may need to do this manually."
+        fi
+    fi
 fi
 
 log_info "Dotfiles installation complete!"
