@@ -1,2 +1,0 @@
-# avahi-daemon
-{ "name": "avahi-daemon", "type": "BG_CPUIO" }

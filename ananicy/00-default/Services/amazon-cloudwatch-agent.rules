@@ -1,2 +1,0 @@
-# Amazon cloudwatch agent, monitors system resources on EC2 instances
-{ "name": "amazon-cloudwatch-agent", "type": "LowLatency_RT" }
