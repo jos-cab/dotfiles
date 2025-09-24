@@ -115,6 +115,18 @@ export FZF_DEFAULT_OPTS="
 # Bat (cat replacement) settings
 export BAT_THEME="Catppuccin Mocha"
 
+# Qt Platform Theme
+export QT_QPA_PLATFORMTHEME=qt5ct
+export QT_STYLE_OVERRIDE=kvantum
+
+# Ensure Qt apps use dark theme
+export QT_AUTO_SCREEN_SCALE_FACTOR=1
+export QT_ENABLE_HIGHDPI_SCALING=1
+
+# Dark Theme Preference
+export GTK_THEME=catppuccin-mocha-mauve-standard+default
+export GTK_APPLICATION_PREFER_DARK_THEME=1
+
 # ======= XDG Base Directory Specification =======
 export XDG_CONFIG_HOME="$HOME/.config"
 export XDG_DATA_HOME="$HOME/.local/share"
