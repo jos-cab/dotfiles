@@ -30,14 +30,12 @@ set default-fg "#cdd6f4"  # Text
 
 # Recolor (dark mode) - optimized for Catppuccin Mocha
 set recolor-lightcolor "#1e1e2e"  # Base (background) - darker for better contrast
-set recolor-darkcolor "#f5e0dc"   # Rosewater (foreground) - warmer white for easier reading
+set recolor-darkcolor "#cdd6f4"   # Rosewater (foreground) - warmer white for easier reading
 
 # Selection colors
-set highlight-color "#f5e0dc"     # Rosewater
-set highlight-active-color "#89b4fa"  # Blue
-
-# Link colors (for 'f' follow links mode) - improved contrast
-set highlight-transparency 0.8
+set highlight-color "#585b70"     # Rosewater
+set highlight-active-color "#f5e0dc"  # Rosewater
+set highlight-fg "#f5e0dc"    # Rosewater
 
 # Status bar colors
 set statusbar-fg "#cdd6f4"        # Text
@@ -69,8 +67,8 @@ set index-active-fg "#1e1e2e"     # Base
 
 # Render colors (for transparency effects)
 set render-loading-bg "#1e1e2e"   # Base
-set render-loading-fg "#cdd6f4"   # Text# 
-Additional settings for better UX
+set render-loading-fg "#cdd6f4"   # Text
+#Additional settings for better UX
 set scroll-step 50
 set scroll-hstep -1
 set scroll-wrap false
