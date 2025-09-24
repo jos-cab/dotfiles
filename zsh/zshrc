@@ -44,4 +44,13 @@ source "$ZSH_CONFIG_DIR/integrations.zsh" # External tool integrations
 [ -f ~/.zsh_history ] && chmod 600 ~/.zsh_history
 
 # Print a welcome message (optional)
-# echo "🚀 Zsh configuration loaded successfully!"
+# echo "🚀 Zsh configuration loaded successfully!"# Qt Theme Configuration
+export QT_QPA_PLATFORMTHEME=qt5ct
+export QT_STYLE_OVERRIDE=kvantum
+export QT_AUTO_SCREEN_SCALE_FACTOR=1
+export QT_ENABLE_HIGHDPI_SCALING=1
+export QT_COLOR_SCHEME=dark
+export QT_VULKAN=1
+export QT_WEBENGINE_EMBEDDED_SWITCHES="--enable-features=DarkModeCSSPrefersColorScheme"
+
+export PATH=$PATH:/home/jos-cab/.spicetify
