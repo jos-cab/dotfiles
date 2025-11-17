@@ -105,6 +105,9 @@ export PATH="$HOME/bin:$PATH"
 export LESS='-R -i -w -M -z-4'
 export LESSHISTFILE=-
 
+# Hardware video acceleration (NVIDIA)
+export LIBVA_DRIVER_NAME=nvidia
+
 # FZF settings
 export FZF_DEFAULT_OPTS="
 --color=bg+:#313244,bg:#1e1e2e,spinner:#f5e0dc,hl:#f38ba8
