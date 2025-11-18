@@ -65,7 +65,7 @@ alias ports='netstat -tulanp'
 
 # ======= Applications =======
 # Using X11 mode for Vulkan support (faster on NVIDIA)
-alias brave='brave --ozone-platform=x11 --enable-features=VulkanFromANGLE,DefaultANGLEVulkan,Vulkan --password-store=basic --use-angle=vulkan --use-gl=angle --enable-gpu-rasterization --enable-zero-copy'
+alias brave='brave --ozone-platform=x11 --enable-features=VulkanFromANGLE,DefaultANGLEVulkan,Vulkan --password-store=basic --use-angle=vulkan --use-gl=angle --enable-gpu-rasterization --enable-zero-copy --profile-directory="Default"'
 
 # ======= Utilities =======
 alias reload='source ~/.zshrc'
