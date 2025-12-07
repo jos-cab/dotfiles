@@ -3,8 +3,6 @@
 # Dotfiles installation script
 # Creates symlinks from ~/.config to dotfiles directory
 # Usage: ./install.sh
-#
-# Note: Run 'git submodule update --init --recursive' first to initialize submodules
 
 set -e  # Exit on any error
 
@@ -88,31 +86,16 @@ CONFIG_DIR="$HOME/.config"
 # Validate environment
 check_system
 
+# Initialize git submodules if needed
+if [ -f "$DOTFILES_DIR/.gitmodules" ]; then
+    log_info "Initializing git submodules..."
+    git -C "$DOTFILES_DIR" submodule update --init --recursive
+fi
+
 # Check if we have the expected directories
 if [ ! -d "$DOTFILES_DIR/kitty" ] && [ ! -d "$DOTFILES_DIR/hyprland" ]; then
     log_error "This doesn't appear to be a dotfiles directory. Expected to find kitty or hyprland directories."
     exit 1
-fi
-
-# Check if submodules are initialized
-if [ -f "$DOTFILES_DIR/.gitmodules" ] && [ ! -f "$DOTFILES_DIR/ranger/plugins/ranger_devicons/devicons.py" ]; then
-    log_warn "Git submodules not initialized. Run 'git submodule update --init --recursive' first."
-    log_warn "Continuing installation, but some plugins may not work properly."
-    echo "Would you like to initialize submodules now? (y/N)"
-    # Hide cursor during single character input
-    tput civis 2>/dev/null
-    read -n 1 -r response
-    # Show cursor again
-    tput cnorm 2>/dev/null
-    echo  # Move to a new line after single character input
-    if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
-        response="y"
-    else
-        response="n"
-    fi
-    if [[ "$response" =~ ^([yY])$ ]]; then
-        git submodule update --init --recursive
-    fi
 fi
 
 # Ask user if they want to backup existing files
@@ -244,7 +227,21 @@ if [ -d "$DOTFILES_DIR/nvim" ]; then
     for item in "$DOTFILES_DIR/nvim"/*; do
         if [ -e "$item" ]; then
             filename=$(basename "$item")
-            create_symlink "$CONFIG_DIR/nvim/$filename" "$item"
+            
+            # Special handling for lua directory
+            if [ "$filename" = "lua" ] && [ -d "$item" ]; then
+                mkdir -p "$CONFIG_DIR/nvim/lua"
+                
+                # Link each lua module individually
+                for module in "$item"/*; do
+                    if [ -e "$module" ]; then
+                        module_name=$(basename "$module")
+                        create_symlink "$CONFIG_DIR/nvim/lua/$module_name" "$module"
+                    fi
+                done
+            else
+                create_symlink "$CONFIG_DIR/nvim/$filename" "$item"
+            fi
         fi
     done
 fi
@@ -258,19 +255,19 @@ if [ -d "$DOTFILES_DIR/ranger" ]; then
         if [ -e "$item" ]; then
             filename=$(basename "$item")
             
-            # Special handling for plugins directory
-            if [ "$filename" = "plugins" ]; then
-                mkdir -p "$CONFIG_DIR/ranger/plugins"
+            # Special handling for subdirectories
+            if [ -d "$item" ]; then
+                mkdir -p "$CONFIG_DIR/ranger/$filename"
                 
-                # Link each plugin individually
-                for plugin in "$DOTFILES_DIR/ranger/plugins"/*; do
-                    if [ -e "$plugin" ]; then
-                        plugin_name=$(basename "$plugin")
-                        create_symlink "$CONFIG_DIR/ranger/plugins/$plugin_name" "$plugin"
+                # Link each item in subdirectory individually
+                for subitem in "$item"/*; do
+                    if [ -e "$subitem" ]; then
+                        subname=$(basename "$subitem")
+                        create_symlink "$CONFIG_DIR/ranger/$filename/$subname" "$subitem"
                     fi
                 done
             else
-                # Link other files and directories normally
+                # Link files normally
                 create_symlink "$CONFIG_DIR/ranger/$filename" "$item"
             fi
         fi
@@ -296,7 +293,19 @@ if [ -d "$DOTFILES_DIR/waybar" ]; then
     for item in "$DOTFILES_DIR/waybar"/*; do
         if [ -e "$item" ]; then
             filename=$(basename "$item")
-            create_symlink "$CONFIG_DIR/waybar/$filename" "$item"
+            
+            # Special handling for scripts directory
+            if [ "$filename" = "scripts" ] && [ -d "$item" ]; then
+                mkdir -p "$CONFIG_DIR/waybar/scripts"
+                for script in "$item"/*; do
+                    if [ -e "$script" ]; then
+                        script_name=$(basename "$script")
+                        create_symlink "$CONFIG_DIR/waybar/scripts/$script_name" "$script"
+                    fi
+                done
+            else
+                create_symlink "$CONFIG_DIR/waybar/$filename" "$item"
+            fi
         fi
     done
 fi
