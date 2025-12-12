@@ -1,0 +1,12 @@
+#!/bin/bash
+
+kitty -e bash -c "
+    echo 'Running full system upgrade with paru...';
+    paru -Syu --noconfirm && \
+    echo 'Updating global npm packages...' && \
+    sudo npm -g upgrade;
+    
+    echo;
+    echo 'All tasks finished. Press ENTER to close.';
+    read
+"
