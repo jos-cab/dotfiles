@@ -39,9 +39,7 @@ return {
   {
     "neovim/nvim-lspconfig",
     opts = function()
-      local keys = require("lazyvim.plugins.lsp.keymaps").get()
       -- Add custom keymaps
-      keys[#keys + 1] = { "<leader>cl", "<cmd>LspInfo<cr>", desc = "Lsp Info" }
     end,
   },
 }
