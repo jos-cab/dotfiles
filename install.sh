@@ -80,6 +80,43 @@ create_symlink() {
     ln -sf "$source" "$dest"
 }
 
+# ananicy-cpp runs as a system service with ProtectHome=yes, so it cannot
+# reliably read rules from ~/.config. Install the rules into its system path.
+configure_ananicy() {
+    local source_dir="$DOTFILES_DIR/ananicy"
+    local system_dir="/etc/ananicy.d"
+
+    if [ ! -d "$source_dir" ]; then
+        return
+    fi
+
+    if ! command -v ananicy-cpp &> /dev/null; then
+        log_warn "ananicy-cpp is not installed. Skipping system ananicy configuration."
+        return
+    fi
+
+    log_info "Configuring ananicy-cpp system rules..."
+    sudo install -d -m 0755 "$system_dir"
+
+    for file in "$source_dir"/*.conf "$source_dir"/*.types "$source_dir"/*.cgroups; do
+        [ -f "$file" ] || continue
+        sudo install -m 0644 "$file" "$system_dir/$(basename "$file")"
+    done
+
+    if [ -d "$source_dir/00-default" ]; then
+        sudo cp -a "$source_dir/00-default" "$system_dir/"
+    fi
+
+    if command -v systemctl &> /dev/null; then
+        sudo systemctl enable --now ananicy-cpp.service \
+            || log_warn "Failed to enable/start ananicy-cpp.service. Please check it manually."
+        sudo systemctl restart ananicy-cpp.service \
+            || log_warn "Failed to restart ananicy-cpp.service. Please restart it manually."
+    else
+        log_warn "systemctl not found. Please enable/start ananicy-cpp.service manually."
+    fi
+}
+
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG_DIR="$HOME/.config"
 
@@ -175,6 +212,8 @@ if [ -d "$DOTFILES_DIR/ananicy" ]; then
             create_symlink "$CONFIG_DIR/ananicy/$filename" "$item"
         fi
     done
+
+    configure_ananicy
 fi
 
 # Link hyprland configs to hypr directory
