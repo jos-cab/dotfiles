@@ -101,12 +101,20 @@ sudo pacman -S zsh starship
 # Wallpaper manager (AUR)
 paru -S hyprpaper   # or yay -S hyprpaper
 
+# Notes app (AUR)
+paru -S obsidian   # or yay -S obsidian
+
+# Browser (AUR)
+paru -S brave-bin   # or yay -S brave-bin
+
 # Extra utilities
 sudo pacman -S brightnessctl pavucontrol \
-    xdg-desktop-portal-hyprland grim slurp wl-clipboard
+    xdg-desktop-portal-hyprland grim slurp wl-clipboard \
+    zathura zathura-pdf-mupdf tesseract tesseract-data-eng \
+    tesseract-data-spa unarchiver
 ```
 
-> Note: The install script will automatically detect if you have `paru` or `yay` installed for AUR packages. If neither is found, you'll need to manually install `hyprpaper`.
+> Note: The install script will automatically detect if you have `paru` or `yay` installed for AUR packages. If neither is found, you'll need to manually install `hyprpaper`, `obsidian`, and `brave-bin`.
 
 ## Useful Resources
 
