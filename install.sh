@@ -146,7 +146,7 @@ if [[ "$response" =~ ^([yY])$ ]]; then
     # Check if pacman is available
     if command -v pacman &> /dev/null; then
         log_info "Installing core components..."
-        sudo pacman -S hyprland kitty waybar wofi mako zsh starship bat brightnessctl pavucontrol xdg-desktop-portal-hyprland grim slurp wl-clipboard zathura zathura-pdf-mupdf tesseract tesseract-data-eng tesseract-data-spa unarchiver --noconfirm || log_warn "Failed to install some packages. Please install manually."
+        sudo pacman -S hyprland kitty waybar wofi mako zsh starship bat brightnessctl pavucontrol xdg-desktop-portal-hyprland grim slurp wl-clipboard zathura zathura-pdf-mupdf tesseract tesseract-data-eng tesseract-data-spa noto-fonts-cjk unarchiver --noconfirm || log_warn "Failed to install some packages. Please install manually."
         
         # Check for AUR helper
         if command -v paru &> /dev/null || command -v yay &> /dev/null; then
