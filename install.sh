@@ -146,18 +146,18 @@ if [[ "$response" =~ ^([yY])$ ]]; then
     # Check if pacman is available
     if command -v pacman &> /dev/null; then
         log_info "Installing core components..."
-        sudo pacman -S hyprland kitty waybar wofi mako zsh starship brightnessctl pavucontrol xdg-desktop-portal-hyprland grim slurp wl-clipboard --noconfirm || log_warn "Failed to install some packages. Please install manually."
+        sudo pacman -S hyprland kitty waybar wofi mako zsh starship brightnessctl pavucontrol xdg-desktop-portal-hyprland grim slurp wl-clipboard zathura zathura-pdf-mupdf tesseract tesseract-data-eng tesseract-data-spa unarchiver --noconfirm || log_warn "Failed to install some packages. Please install manually."
         
         # Check for AUR helper
         if command -v paru &> /dev/null || command -v yay &> /dev/null; then
             log_info "Installing AUR packages..."
             if command -v paru &> /dev/null; then
-                paru -S hyprpaper --noconfirm || log_warn "Failed to install hyprpaper. Please install manually."
+                paru -S hyprpaper obsidian brave-bin --noconfirm || log_warn "Failed to install some AUR packages. Please install manually."
             else
-                yay -S hyprpaper --noconfirm || log_warn "Failed to install hyprpaper. Please install manually."
+                yay -S hyprpaper obsidian brave-bin --noconfirm || log_warn "Failed to install some AUR packages. Please install manually."
             fi
         else
-            log_warn "No AUR helper found. Please install hyprpaper manually if needed."
+            log_warn "No AUR helper found. Please install hyprpaper, obsidian, and brave-bin manually if needed."
         fi
     else
         log_error "Package manager not found. Please install dependencies manually."
