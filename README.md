@@ -19,7 +19,7 @@ It includes configurations for my shell, terminal, bar, launcher, notifications,
 -   **Terminal**: [Kitty](https://sw.kovidgoyal.net/kitty/)
 -   **Notification Daemon**: [Mako](https://github.com/emersion/mako)
 -   **Application Launcher**: [Wofi](https://hg.sr.ht/~scoopta/wofi)
--   **Wallpaper Manager**: [Hyprpaper](https://github.com/hyprwm/hyprpaper)
+-   **Wallpaper Manager**: [awww](https://codeberg.org/LGFae/awww)
 -   **Status Bar**: [Waybar](https://github.com/Alexays/Waybar)
 
 ## Installation
@@ -93,13 +93,10 @@ The installation script can automatically install these dependencies for you, or
 
 ```bash
 # Core components
-sudo pacman -S hyprland kitty waybar wofi mako
+sudo pacman -S hyprland kitty waybar wofi mako awww
 
 # Shell and prompt
 sudo pacman -S zsh starship
-
-# Wallpaper manager (AUR)
-paru -S hyprpaper   # or yay -S hyprpaper
 
 # Notes app (AUR)
 paru -S obsidian   # or yay -S obsidian
@@ -114,7 +111,7 @@ sudo pacman -S brightnessctl pavucontrol \
     tesseract-data-spa unarchiver
 ```
 
-> Note: The install script will automatically detect if you have `paru` or `yay` installed for AUR packages. If neither is found, you'll need to manually install `hyprpaper`, `obsidian`, and `brave-bin`.
+> Note: The install script will automatically detect if you have `paru` or `yay` installed for AUR packages. If neither is found, you'll need to manually install `obsidian` and `brave-bin`.
 
 ## Useful Resources
 

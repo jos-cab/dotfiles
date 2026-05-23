@@ -183,18 +183,18 @@ if [[ "$response" =~ ^([yY])$ ]]; then
     # Check if pacman is available
     if command -v pacman &> /dev/null; then
         log_info "Installing core components..."
-        sudo pacman -S hyprland kitty waybar wofi mako zsh starship bat ranger ananicy-cpp brightnessctl pavucontrol xdg-desktop-portal-hyprland grim slurp wl-clipboard zathura zathura-pdf-mupdf tesseract tesseract-data-eng tesseract-data-spa noto-fonts-cjk unarchiver --noconfirm || log_warn "Failed to install some packages. Please install manually."
+        sudo pacman -S hyprland kitty waybar wofi mako awww zsh starship bat ranger ananicy-cpp brightnessctl pavucontrol xdg-desktop-portal-hyprland grim slurp wl-clipboard zathura zathura-pdf-mupdf tesseract tesseract-data-eng tesseract-data-spa noto-fonts-cjk unarchiver --noconfirm || log_warn "Failed to install some packages. Please install manually."
         
         # Check for AUR helper
         if command -v paru &> /dev/null || command -v yay &> /dev/null; then
             log_info "Installing AUR packages..."
             if command -v paru &> /dev/null; then
-                paru -S hyprpaper obsidian brave-bin --noconfirm || log_warn "Failed to install some AUR packages. Please install manually."
+                paru -S obsidian brave-bin --noconfirm || log_warn "Failed to install some AUR packages. Please install manually."
             else
-                yay -S hyprpaper obsidian brave-bin --noconfirm || log_warn "Failed to install some AUR packages. Please install manually."
+                yay -S obsidian brave-bin --noconfirm || log_warn "Failed to install some AUR packages. Please install manually."
             fi
         else
-            log_warn "No AUR helper found. Please install hyprpaper, obsidian, and brave-bin manually if needed."
+            log_warn "No AUR helper found. Please install obsidian and brave-bin manually if needed."
         fi
     else
         log_error "Package manager not found. Please install dependencies manually."
@@ -227,12 +227,6 @@ if [ -d "$DOTFILES_DIR/hyprland" ]; then
             create_symlink "$CONFIG_DIR/hypr/$filename" "$item"
         fi
     done
-fi
-
-# Link hyprpaper config
-if [ -f "$DOTFILES_DIR/hyprpaper/config" ]; then
-    mkdir -p "$CONFIG_DIR/hyprpaper"
-    create_symlink "$CONFIG_DIR/hyprpaper/config" "$DOTFILES_DIR/hyprpaper/config"
 fi
 
 # Link imv config
