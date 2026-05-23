@@ -330,30 +330,39 @@ fi
 # Link zsh configs
 if [ -d "$DOTFILES_DIR/zsh" ]; then
     mkdir -p "$CONFIG_DIR/zsh"
+
     for file in "$DOTFILES_DIR/zsh"/*; do
-        if [ -f "$file" ]; then
-            filename=$(basename "$file")
+        [ -f "$file" ] || continue
+
+        filename=$(basename "$file")
+
+        # zshrc is stored without a leading dot in the repo, but belongs in HOME.
+        if [ "$filename" = "zshrc" ] || [ "$filename" = ".zshrc" ]; then
+            create_symlink "$HOME/.zshrc" "$file"
+        else
+            # everything else goes in ~/.config/zsh
             create_symlink "$CONFIG_DIR/zsh/$filename" "$file"
         fi
     done
-    
+
     # Set zsh as default shell if not already set
     if [[ "$SHELL" != *"zsh"* ]]; then
         echo
         echo "Would you like to set zsh as your default shell? (y/N)"
-        # Hide cursor during single character input
+
         tput civis 2>/dev/null
         read -n 1 -r response
-        # Show cursor again
         tput cnorm 2>/dev/null
-        echo  # Move to a new line after single character input
+        echo
+
         if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
-            response="y"
-        else
-            response="n"
-        fi
-        if [[ "$response" =~ ^([yY])$ ]]; then
-            chsh -s "$(which zsh)" || log_warn "Failed to change shell. You may need to do this manually."
+            zsh_path="$(command -v zsh || true)"
+            if [ -n "$zsh_path" ]; then
+                chsh -s "$zsh_path" \
+                    || log_warn "Failed to change shell. You may need to do this manually."
+            else
+                log_warn "zsh is not installed or not in PATH. Please install it before changing your default shell."
+            fi
         fi
     fi
 fi
