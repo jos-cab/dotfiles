@@ -200,12 +200,12 @@ if [[ "$response" =~ ^([yY])$ ]]; then
         if command -v paru &> /dev/null || command -v yay &> /dev/null; then
             log_info "Installing AUR packages..."
             if command -v paru &> /dev/null; then
-                paru -S obsidian brave-bin --noconfirm || log_warn "Failed to install some AUR packages. Please install manually."
+                paru -S obsidian brave-bin qogir-cursor-theme-git --noconfirm || log_warn "Failed to install some AUR packages. Please install manually."
             else
-                yay -S obsidian brave-bin --noconfirm || log_warn "Failed to install some AUR packages. Please install manually."
+                yay -S obsidian brave-bin qogir-cursor-theme-git --noconfirm || log_warn "Failed to install some AUR packages. Please install manually."
             fi
         else
-            log_warn "No AUR helper found. Please install obsidian and brave-bin manually if needed."
+            log_warn "No AUR helper found. Please install obsidian, brave-bin, and qogir-cursor-theme-git manually if needed."
         fi
     else
         log_error "Package manager not found. Please install dependencies manually."

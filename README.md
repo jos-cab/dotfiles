@@ -104,6 +104,9 @@ paru -S obsidian   # or yay -S obsidian
 # Browser (AUR)
 paru -S brave-bin   # or yay -S brave-bin
 
+# Cursor theme (AUR)
+paru -S qogir-cursor-theme-git   # or yay -S qogir-cursor-theme-git
+
 # Extra utilities
 sudo pacman -S brightnessctl pavucontrol \
     pipewire pipewire-alsa pipewire-pulse wireplumber \
@@ -112,7 +115,7 @@ sudo pacman -S brightnessctl pavucontrol \
     tesseract-data-spa unarchiver
 ```
 
-> Note: The install script will automatically detect if you have `paru` or `yay` installed for AUR packages. If neither is found, you'll need to manually install `obsidian` and `brave-bin`.
+> Note: The install script will automatically detect if you have `paru` or `yay` installed for AUR packages. If neither is found, you'll need to manually install `obsidian`, `brave-bin`, and `qogir-cursor-theme-git`.
 
 ## Useful Resources
 
