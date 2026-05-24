@@ -240,6 +240,19 @@ if [ -d "$DOTFILES_DIR/hyprland" ]; then
     done
 fi
 
+# Link GTK configs
+for gtk_version in gtk-3.0 gtk-4.0; do
+    if [ -d "$DOTFILES_DIR/$gtk_version" ]; then
+        mkdir -p "$CONFIG_DIR/$gtk_version"
+        for file in "$DOTFILES_DIR/$gtk_version"/*; do
+            if [ -f "$file" ]; then
+                filename=$(basename "$file")
+                create_symlink "$CONFIG_DIR/$gtk_version/$filename" "$file"
+            fi
+        done
+    fi
+done
+
 # Link imv config
 if [ -f "$DOTFILES_DIR/imv/config" ]; then
     mkdir -p "$CONFIG_DIR/imv"
