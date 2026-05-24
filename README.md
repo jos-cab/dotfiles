@@ -106,6 +106,7 @@ paru -S brave-bin   # or yay -S brave-bin
 
 # Extra utilities
 sudo pacman -S brightnessctl pavucontrol \
+    pipewire pipewire-alsa pipewire-pulse wireplumber \
     xdg-desktop-portal-hyprland grim slurp wl-clipboard \
     zathura zathura-pdf-mupdf tesseract tesseract-data-eng \
     tesseract-data-spa unarchiver

@@ -117,6 +117,16 @@ configure_ananicy() {
     fi
 }
 
+check_pipewire_status() {
+    if command -v systemctl &> /dev/null; then
+        log_info "Checking PipeWire user service status..."
+        systemctl --user --no-pager status pipewire pipewire-pulse wireplumber \
+            || log_warn "One or more PipeWire user services are not active. Please check them manually."
+    else
+        log_warn "systemctl not found. Please check PipeWire services manually."
+    fi
+}
+
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG_DIR="$HOME/.config"
 
@@ -183,7 +193,8 @@ if [[ "$response" =~ ^([yY])$ ]]; then
     # Check if pacman is available
     if command -v pacman &> /dev/null; then
         log_info "Installing core components..."
-        sudo pacman -S hyprland kitty waybar wofi mako awww zsh starship bat ranger ananicy-cpp brightnessctl pavucontrol xdg-desktop-portal-hyprland grim slurp wl-clipboard zathura zathura-pdf-mupdf tesseract tesseract-data-eng tesseract-data-spa noto-fonts-cjk unarchiver --noconfirm || log_warn "Failed to install some packages. Please install manually."
+        sudo pacman -S hyprland kitty waybar wofi mako awww zsh starship bat ranger ananicy-cpp brightnessctl pavucontrol pipewire pipewire-alsa pipewire-pulse wireplumber xdg-desktop-portal-hyprland grim slurp wl-clipboard zathura zathura-pdf-mupdf tesseract tesseract-data-eng tesseract-data-spa noto-fonts-cjk unarchiver --noconfirm || log_warn "Failed to install some packages. Please install manually."
+        check_pipewire_status
         
         # Check for AUR helper
         if command -v paru &> /dev/null || command -v yay &> /dev/null; then
