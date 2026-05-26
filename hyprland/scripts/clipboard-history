@@ -1,0 +1,145 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+MAX_ITEMS=${CLIPBOARD_HISTORY_ITEMS:-80}
+PREVIEW_SIZE=${CLIPBOARD_HISTORY_PREVIEW_SIZE:-96}
+
+notify() {
+    if command -v notify-send >/dev/null 2>&1; then
+        notify-send "Clipboard history" "$1"
+    fi
+}
+
+require_command() {
+    if ! command -v "$1" >/dev/null 2>&1; then
+        notify "$1 is not installed"
+        exit 1
+    fi
+}
+
+clip_entry_id() {
+    local entry=$1
+    printf '%s' "${entry%%$'\t'*}"
+}
+
+clip_entry_preview() {
+    local entry=$1
+
+    if [[ "$entry" == *$'\t'* ]]; then
+        printf '%s' "${entry#*$'\t'}"
+    else
+        printf '%s' "$entry"
+    fi
+}
+
+clean_preview() {
+    tr '\n\r\t' '   ' | cut -c 1-160
+}
+
+image_extension_for() {
+    local preview=$1
+
+    case "$preview" in
+        *image/jpeg*) printf 'jpg' ;;
+        *image/png*) printf 'png' ;;
+        *image/webp*) printf 'webp' ;;
+        *image/gif*) printf 'gif' ;;
+        *image/bmp*) printf 'bmp' ;;
+        *image/tiff*) printf 'tiff' ;;
+        *) printf 'img' ;;
+    esac
+}
+
+is_image_entry() {
+    local preview=$1
+
+    [[ "$preview" == *image/* ]]
+}
+
+show_empty_history() {
+    notify "No clipboard history yet"
+    exit 0
+}
+
+require_command cliphist
+require_command wl-copy
+require_command wofi
+
+history_file=$(mktemp)
+menu_file=$(mktemp)
+map_file=$(mktemp)
+preview_dir=$(mktemp -d "${XDG_RUNTIME_DIR:-/tmp}/clipboard-history.XXXXXX")
+
+cleanup() {
+    rm -f "$history_file" "$menu_file" "$map_file"
+    rm -rf "$preview_dir"
+}
+trap cleanup EXIT
+
+set +o pipefail
+cliphist list | head -n "$MAX_ITEMS" > "$history_file"
+set -o pipefail
+[ -s "$history_file" ] || show_empty_history
+
+index=0
+while IFS= read -r entry; do
+    index=$((index + 1))
+
+    number=$(printf '%03d' "$index")
+    clip_id=$(clip_entry_id "$entry")
+    safe_clip_id=$(printf '%s' "$clip_id" | tr -c '[:alnum:]_.-' '_')
+    preview=$(clip_entry_preview "$entry")
+    label=$(printf '%s' "$preview" | clean_preview)
+    display="$number  $label"
+
+    printf '%s\t%s\n' "$number" "$entry" >> "$map_file"
+
+    if is_image_entry "$preview"; then
+        extension=$(image_extension_for "$preview")
+        image_path="$preview_dir/$number-$safe_clip_id.$extension"
+
+        if printf '%s\n' "$entry" | cliphist decode > "$image_path" 2>/dev/null; then
+            printf 'img:%s:%s\n' "$image_path" "$display" >> "$menu_file"
+            continue
+        fi
+    fi
+
+    printf '%s\n' "$display" >> "$menu_file"
+done < "$history_file"
+
+selection=$(
+    wofi --dmenu \
+        --prompt "Clipboard" \
+        --allow-images \
+        --no-custom-entry \
+        --define allow_markup=false \
+        --define image_size="$PREVIEW_SIZE" \
+        --width 42% \
+        --height 45% \
+        < "$menu_file"
+) || exit 0
+
+[ -n "$selection" ] || exit 0
+
+if [[ "$selection" == img:* ]]; then
+    selection=${selection#img:}
+    selection=${selection#*:}
+fi
+
+selected_number=${selection%%[!0-9]*}
+[ -n "$selected_number" ] || exit 1
+
+selected_entry=$(
+    awk -F '\t' -v number="$selected_number" '
+        $1 == number {
+            print substr($0, length($1) + 2)
+            exit
+        }
+    ' "$map_file"
+)
+
+[ -n "$selected_entry" ] || exit 1
+
+printf '%s\n' "$selected_entry" | cliphist decode | wl-copy
+notify "Copied selected item"

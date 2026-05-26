@@ -110,7 +110,7 @@ paru -S qogir-cursor-theme-git   # or yay -S qogir-cursor-theme-git
 # Extra utilities
 sudo pacman -S brightnessctl pavucontrol \
     pipewire pipewire-alsa pipewire-pulse wireplumber \
-    xdg-desktop-portal-hyprland grim slurp wl-clipboard \
+    xdg-desktop-portal-hyprland grim slurp wl-clipboard cliphist \
     zathura zathura-pdf-mupdf tesseract tesseract-data-eng \
     tesseract-data-spa unarchiver
 ```
