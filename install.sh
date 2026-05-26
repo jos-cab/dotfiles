@@ -193,7 +193,7 @@ if [[ "$response" =~ ^([yY])$ ]]; then
     # Check if pacman is available
     if command -v pacman &> /dev/null; then
         log_info "Installing core components..."
-        sudo pacman -S hyprland kitty waybar wofi mako awww zsh starship bat ranger ananicy-cpp brightnessctl pavucontrol pipewire pipewire-alsa pipewire-pulse wireplumber xdg-desktop-portal-hyprland grim slurp wl-clipboard zathura zathura-pdf-mupdf tesseract tesseract-data-eng tesseract-data-spa noto-fonts-cjk unarchiver --noconfirm || log_warn "Failed to install some packages. Please install manually."
+        sudo pacman -S hyprland kitty waybar wofi mako awww zsh starship bat yazi ananicy-cpp brightnessctl pavucontrol pipewire pipewire-alsa pipewire-pulse wireplumber xdg-desktop-portal-hyprland grim slurp wl-clipboard zathura zathura-pdf-mupdf tesseract tesseract-data-eng tesseract-data-spa noto-fonts-cjk unarchiver --noconfirm || log_warn "Failed to install some packages. Please install manually."
         check_pipewire_status
         
         # Check for AUR helper
@@ -298,34 +298,6 @@ if [ -d "$DOTFILES_DIR/nvim" ]; then
                 done
             else
                 create_symlink "$CONFIG_DIR/nvim/$filename" "$item"
-            fi
-        fi
-    done
-fi
-
-# Link ranger configs
-if [ -d "$DOTFILES_DIR/ranger" ]; then
-    mkdir -p "$CONFIG_DIR/ranger"
-    
-    # Link all files and directories in ranger directory
-    for item in "$DOTFILES_DIR/ranger"/*; do
-        if [ -e "$item" ]; then
-            filename=$(basename "$item")
-            
-            # Special handling for subdirectories
-            if [ -d "$item" ]; then
-                mkdir -p "$CONFIG_DIR/ranger/$filename"
-                
-                # Link each item in subdirectory individually
-                for subitem in "$item"/*; do
-                    if [ -e "$subitem" ]; then
-                        subname=$(basename "$subitem")
-                        create_symlink "$CONFIG_DIR/ranger/$filename/$subname" "$subitem"
-                    fi
-                done
-            else
-                # Link files normally
-                create_symlink "$CONFIG_DIR/ranger/$filename" "$item"
             fi
         fi
     done
