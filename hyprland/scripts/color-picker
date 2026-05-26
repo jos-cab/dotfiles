@@ -1,0 +1,20 @@
+#!/bin/bash
+
+if ! command -v hyprpicker >/dev/null 2>&1; then
+    notify-send "Color picker" "hyprpicker is not installed"
+    exit 1
+fi
+
+if ! command -v wl-copy >/dev/null 2>&1; then
+    notify-send "Color picker" "wl-copy is not installed"
+    exit 1
+fi
+
+COLOR=$(hyprpicker)
+
+if [ -z "$COLOR" ]; then
+    exit 0
+fi
+
+printf '%s' "$COLOR" | wl-copy
+notify-send "Color copied" "$COLOR"

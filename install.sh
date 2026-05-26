@@ -193,7 +193,7 @@ if [[ "$response" =~ ^([yY])$ ]]; then
     # Check if pacman is available
     if command -v pacman &> /dev/null; then
         log_info "Installing core components..."
-        sudo pacman -S hyprland kitty waybar wofi mako awww zsh starship bat yazi ananicy-cpp brightnessctl pavucontrol pipewire pipewire-alsa pipewire-pulse wireplumber xdg-desktop-portal-hyprland grim slurp wl-clipboard zathura zathura-pdf-mupdf tesseract tesseract-data-eng tesseract-data-spa noto-fonts-cjk unarchiver atool --noconfirm || log_warn "Failed to install some packages. Please install manually."
+        sudo pacman -S hyprland hyprpicker kitty waybar wofi mako awww zsh starship bat yazi ananicy-cpp brightnessctl pavucontrol pipewire pipewire-alsa pipewire-pulse wireplumber xdg-desktop-portal-hyprland grim slurp wl-clipboard zathura zathura-pdf-mupdf tesseract tesseract-data-eng tesseract-data-spa noto-fonts-cjk unarchiver atool --noconfirm || log_warn "Failed to install some packages. Please install manually."
         check_pipewire_status
         
         # Check for AUR helper
