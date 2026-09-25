@@ -1,12 +1,20 @@
 #!/bin/bash
+# Wrapper para Hyprland keybind ($mainMod+U)
+# Lanza el updater modular en kitty. El script mismo también
+# auto-relanza en kitty si se ejecuta sin TTY.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SYSTEM_UPDATE="$SCRIPT_DIR/system-update/system-update.sh"
 
-kitty -e bash -c "
-    echo 'Running full system upgrade with paru...';
-    paru -Syu --noconfirm && \
-    echo 'Updating global npm packages...' && \
-    sudo npm -g upgrade;
-    
-    echo;
-    echo 'All tasks finished. Press ENTER to close.';
-    read
-"
+# Fallback si el symlink es ~/.config/hypr/scripts/...
+if [[ ! -x "$SYSTEM_UPDATE" ]]; then
+    SYSTEM_UPDATE="$HOME/.config/hypr/scripts/system-update/system-update.sh"
+fi
+
+if [[ -x "$SYSTEM_UPDATE" ]]; then
+    # --all = run everything sin menú; quita --all si prefieres el menú interactivo
+    # El script ya pausa solo al detectar kitty, no duplicamos read aquí
+    kitty -e "$SYSTEM_UPDATE" --all
+else
+    printf 'system-update.sh no encontrado o no es ejecutable: %s\n' "$SYSTEM_UPDATE" >&2
+    exit 1
+fi
