@@ -44,7 +44,7 @@ backup_if_exists() {
         # If backup already exists, create numbered backups
         while [ -e "$backup" ] || [ -L "$backup" ]; do
             backup="${file}.bak.${counter}"
-            ((counter++))
+            counter=$((counter + 1))
         done
         echo "Backing up $file -> $backup"
         mv "$file" "$backup"
@@ -173,7 +173,7 @@ log_info "Backup existing files: $DO_BACKUPS"
 # Create necessary directories if they don't exist
 mkdir -p "$CONFIG_DIR"
 
-
+shopt -s nullglob
 
 # Ask user if they want to install dependencies
 echo
@@ -193,7 +193,7 @@ if [[ "$response" =~ ^([yY])$ ]]; then
     # Check if pacman is available
     if command -v pacman &> /dev/null; then
         log_info "Installing core components..."
-        sudo pacman -S hyprland hyprpicker kitty waybar wofi mako awww zsh starship bat yazi ananicy-cpp brightnessctl pavucontrol pipewire pipewire-alsa pipewire-pulse wireplumber xdg-desktop-portal-hyprland grim slurp wl-clipboard cliphist zathura zathura-pdf-mupdf tesseract tesseract-data-eng tesseract-data-spa zbar noto-fonts-cjk unarchiver atool --noconfirm || log_warn "Failed to install some packages. Please install manually."
+        sudo pacman -S hyprland hyprpicker kitty waybar wofi mako awww zsh starship bat yazi neovim thunar udiskie playerctl curl fzf jq discord ananicy-cpp brightnessctl pavucontrol pipewire pipewire-alsa pipewire-pulse wireplumber xdg-desktop-portal-hyprland grim slurp wl-clipboard cliphist zathura zathura-pdf-mupdf --noconfirm || log_warn "Failed to install some packages. Please install manually."
         check_pipewire_status
         
         # Check for AUR helper
