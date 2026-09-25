@@ -34,12 +34,4 @@ return {
       },
     },
   },
-
-  -- Configure diagnostics
-  {
-    "neovim/nvim-lspconfig",
-    opts = function()
-      -- Add custom keymaps
-    end,
-  },
 }

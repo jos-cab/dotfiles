@@ -1,5 +1,4 @@
 return {
-  -- Configure blink.cmp keybindings (sources configured in codeium.lua)
   {
     "saghen/blink.cmp",
     opts = {
@@ -15,14 +14,47 @@ return {
       },
     },
   },
-
-  -- Trouble configuration for better diagnostics
   {
     "folke/trouble.nvim",
     opts = {
       use_diagnostic_signs = true,
       auto_close = true,
       auto_preview = true,
+    },
+  },
+  {
+    "folke/snacks.nvim",
+    opts = {
+      dashboard = {
+        preset = {
+          header = [[
+
+                                       
+             ██                       ██
+            ████                     ████
+           ██████                   ██████
+          ████████                 ████████
+         ██████████               ██████████
+        ████████████             ████████████
+       ██████████████           ██████████████
+      ████████████████         ████████████████
+     ██████████████████       ██████████████████
+    ████████████████████     ████████████████████
+   ██████████████████████   ██████████████████████
+  ████████████████████████ ████████████████████████
+ ████████████████████████████████████████████████████
+╾────────────────────────────────────────────────────────╼
+                 󰘧  N E O V I M  󰘧
+           󰆍  edit  ·  explore  ·  create 󰆍
+
+]],
+        },
+        sections = {
+          { section = "header", padding = 2 },
+          { section = "keys", gap = 1, padding = 1 },
+          { section = "startup" },
+        },
+      },
     },
   },
 }
