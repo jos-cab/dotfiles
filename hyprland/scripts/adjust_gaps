@@ -7,19 +7,31 @@
 
 GAPS_TYPE=$1
 OPERATION=$2
-ADJUSTMENT=5
+ADJUSTMENT=1
 
 if [ "$GAPS_TYPE" = "out" ]; then
     OPTION="general:gaps_out"
+    CURRENT=$(hyprctl getoption "$OPTION" | sed -n 's/^css gap data: \([0-9-]*\).*/\1/p')
 elif [ "$GAPS_TYPE" = "in" ]; then
     OPTION="general:gaps_in"
+    CURRENT=$(hyprctl getoption "$OPTION" | sed -n 's/^css gap data: \([0-9-]*\).*/\1/p')
+elif [ "$GAPS_TYPE" = "border" ]; then
+    OPTION="general:border_size"
+    CURRENT=$(hyprctl getoption "$OPTION" | sed -n 's/^int: \([0-9-]*\).*/\1/p')
+elif [ "$GAPS_TYPE" = "rounding" ]; then
+    OPTION="decoration:rounding"
+    SECTION="decoration"
+    KEY="rounding"
+    CURRENT=$(hyprctl getoption "$OPTION" | sed -n 's/^int: \([0-9-]*\).*/\1/p')
 else
-    echo "Invalid gaps type. Use 'out' or 'in'"
+    echo "Invalid adjustment type. Use 'out', 'in', 'border', or 'rounding'"
     exit 1
 fi
 
-# Get current value
-CURRENT=$(hyprctl getoption $OPTION | head -1 | cut -d' ' -f3)
+if [ -z "$CURRENT" ]; then
+    echo "Could not read current value for $OPTION"
+    exit 1
+fi
 
 if [ "$OPERATION" = "inc" ]; then
     NEW_VALUE=$((CURRENT + ADJUSTMENT))
@@ -30,5 +42,15 @@ else
     exit 1
 fi
 
+if [ "$GAPS_TYPE" = "border" ] || [ "$GAPS_TYPE" = "rounding" ]; then
+    if [ "$NEW_VALUE" -lt 0 ]; then
+        NEW_VALUE=0
+    fi
+fi
+
 # Apply new value
-hyprctl keyword $OPTION $NEW_VALUE
+if [ "$GAPS_TYPE" = "rounding" ]; then
+    hyprctl eval "hl.config({ decoration = { rounding = $NEW_VALUE } })"
+else
+    hyprctl eval "hl.config({ general = { ${OPTION#general:} = $NEW_VALUE } })"
+fi
