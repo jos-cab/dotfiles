@@ -139,3 +139,15 @@ ranger/plugins/__pycache__/
 ranger/bookmarks
 ranger/history
 ranger/tagged
+
+# Machine-local secrets
+local.lua
+local.zsh
+local.conf
+**/local.lua
+**/local.zsh
+**/local.conf
+
+# Installer backups
+*.bak
+*.bak.*

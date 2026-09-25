@@ -1,0 +1,10 @@
+-- local.lua.example - machine-local secrets, NOT tracked in git.
+--
+-- Setup:
+--   cp ~/.config/hypr/local.lua.example ~/.config/hypr/local.lua
+--   chmod 600 ~/.config/hypr/local.lua
+--   $EDITOR ~/.config/hypr/local.lua
+--
+-- Loaded last by hyprland.lua, so values here override the tracked ones.
+
+hl.env("NINEROUTER_KEY", "sk-REPLACE_ME")
