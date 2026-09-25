@@ -28,7 +28,8 @@
     "all-outputs": true,
     "warp-on-scroll": false,
     "cursor": true,
-    "format": "{name}"
+    "format": "{name}",
+    "move-to-monitor": true
   },
   "hyprland/window": {
     "format": "{title}",
@@ -89,6 +90,8 @@
   },
   "custom/power": {
     "format": "⏻",
+    "align": 0.45,
+    "justify": "center",
     "tooltip": true,
     "tooltip-format": "Power Menu",
     "on-click": "~/.config/waybar/scripts/power-menu.sh"

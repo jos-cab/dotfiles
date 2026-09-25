@@ -1,0 +1,89 @@
+window#waybar.dock {
+  background: transparent;
+  color: #cdd6f4;
+  font-family: 'JetBrainsMono Nerd Font', 'Hack Nerd Font', monospace;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+window#waybar.dock > box {
+  background: #1e1e2e;
+  border: 1px solid #313244;
+  border-radius: 18px;
+  padding: 6px 10px;
+}
+
+#custom-launcher,
+#custom-terminal,
+#custom-files,
+#custom-browser,
+#custom-discord,
+#custom-spotify,
+#custom-power,
+#wlr-taskbar button {
+  min-width: 38px;
+  min-height: 38px;
+  margin: 0 3px;
+  padding: 0 8px;
+  border-radius: 12px;
+  color: #cdd6f4;
+  background: #181825;
+  transition: all 0.2s ease-in-out;
+}
+
+#custom-launcher {
+  color: #89b4fa;
+}
+
+#custom-terminal {
+  color: #a6e3a1;
+}
+
+#custom-files {
+  color: #f9e2af;
+}
+
+#custom-browser {
+  color: #89dceb;
+}
+
+#custom-discord {
+  color: #cba6f7;
+}
+
+#custom-spotify {
+  color: #a6e3a1;
+}
+
+#custom-power {
+  color: #f38ba8;
+}
+
+#custom-launcher:hover,
+#custom-terminal:hover,
+#custom-files:hover,
+#custom-browser:hover,
+#custom-discord:hover,
+#custom-spotify:hover,
+#custom-power:hover,
+#wlr-taskbar button:hover {
+  background: #313244;
+  color: #f5e0e6;
+}
+
+#wlr-taskbar {
+  padding: 0 4px;
+}
+
+#wlr-taskbar button.active {
+  background: #45475a;
+  color: #89b4fa;
+}
+
+#wlr-taskbar button.minimized {
+  color: #6c7086;
+}
+
+#wlr-taskbar button.fullscreen {
+  color: #a6e3a1;
+}

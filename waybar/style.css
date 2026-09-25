@@ -52,15 +52,17 @@ tooltip label {
 }
 
 #workspaces button {
-	padding: 2px;
+	padding: 0;
 	margin: 4px;
 	border-radius: 50%;
-	border: 0px;
+	border: 0;
 	color: #6c7086;
 	background: transparent;
 	transition: all 0.25s ease-in-out;
 	min-width: 20px;
 	min-height: 20px;
+	box-shadow: none;
+	text-shadow: none;
 }
 
 #workspaces button.active {
@@ -81,6 +83,22 @@ tooltip label {
 #workspaces button:hover {
 	background: #313244;
 	color: #cdd6f4;
+	box-shadow: none;
+}
+
+#workspaces button.active:hover {
+	color: #313244;
+	background: #a6c8ff;
+}
+
+#workspaces button.focused:hover {
+	color: #313244;
+	background: #d8bfff;
+}
+
+#workspaces button.urgent:hover {
+	color: #313244;
+	background: #ffabbc;
 }
 
 /* Window title */
@@ -160,23 +178,15 @@ tooltip label {
 	border-radius: 15px;
 }
 
-/* System tray */
-#tray > .passive {
-	-gtk-icon-effect: dim;
-}
-
-#tray > .needs-attention {
-	-gtk-icon-effect: highlight;
-	background-color: #f38ba8;
-}
-
 /* Power button */
 #custom-power {
 	background: #f38ba8;
 	color: #1e1e2e;
 	border-radius: 50%;
 	margin: 4px 10px;
-	padding: 0 14px 0 12px;
+	padding: 0;
+	min-width: 28px;
+	min-height: 28px;
 	font-size: 12px;
 	transition: all 0.3s ease-in-out;
 }
