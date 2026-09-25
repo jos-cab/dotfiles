@@ -193,7 +193,17 @@ if [[ "$response" =~ ^([yY])$ ]]; then
     # Check if pacman is available
     if command -v pacman &> /dev/null; then
         log_info "Installing core components..."
-        sudo pacman -S hyprland hyprpicker kitty waybar wofi mako awww zsh starship bat yazi neovim thunar udiskie playerctl curl fzf jq discord ananicy-cpp brightnessctl pavucontrol pipewire pipewire-alsa pipewire-pulse wireplumber xdg-desktop-portal-hyprland grim slurp wl-clipboard cliphist zathura zathura-pdf-mupdf --noconfirm || log_warn "Failed to install some packages. Please install manually."
+        sudo pacman -S \
+            hyprland hyprpicker kitty waybar wofi mako awww \
+            ttf-jetbrains-mono-nerd zsh starship eza bat fzf yazi \
+            neovim thunar imv zathura zathura-pdf-mupdf \
+            spotify-launcher discord udiskie playerctl \
+            brightnessctl pavucontrol libnotify unarchiver \
+            pipewire pipewire-alsa pipewire-pulse wireplumber \
+            xdg-desktop-portal-hyprland grim slurp wl-clipboard cliphist \
+            ananicy-cpp pacman-contrib curl jq \
+            tesseract tesseract-data-eng tesseract-data-spa zbar \
+            --noconfirm || log_warn "Failed to install some packages. Please install manually."
         check_pipewire_status
         
         # Check for AUR helper
@@ -282,24 +292,15 @@ if [ -d "$DOTFILES_DIR/nvim" ]; then
     
     # Link all files and directories in nvim directory
     for item in "$DOTFILES_DIR/nvim"/*; do
-        if [ -e "$item" ]; then
-            filename=$(basename "$item")
-            
-            # Special handling for lua directory
-            if [ "$filename" = "lua" ] && [ -d "$item" ]; then
-                mkdir -p "$CONFIG_DIR/nvim/lua"
-                
-                # Link each lua module individually
-                for module in "$item"/*; do
-                    if [ -e "$module" ]; then
-                        module_name=$(basename "$module")
-                        create_symlink "$CONFIG_DIR/nvim/lua/$module_name" "$module"
-                    fi
-                done
-            else
-                create_symlink "$CONFIG_DIR/nvim/$filename" "$item"
-            fi
+        [ -e "$item" ] || continue
+        filename=$(basename "$item")
+
+        # docs/ is documentation, not config
+        if [ "$filename" = "docs" ]; then
+            continue
         fi
+
+        create_symlink "$CONFIG_DIR/nvim/$filename" "$item"
     done
 fi
 
@@ -399,8 +400,15 @@ fi
 log_info "Dotfiles installation complete!"
 
 # Verify some key links were created
-if [ -L "$CONFIG_DIR/kitty/kitty.conf" ] || [ -L "$CONFIG_DIR/hypr/hyprland.conf" ]; then
+missing=""
+for link in "$CONFIG_DIR/kitty/kitty.conf" "$CONFIG_DIR/hypr/hyprland.lua" \
+            "$CONFIG_DIR/nvim/init.lua" "$CONFIG_DIR/waybar/config.jsonc" \
+            "$HOME/.zshrc"; do
+    [ -L "$link" ] || missing="$missing $link"
+done
+
+if [ -z "$missing" ]; then
     log_info "Installation verified successfully!"
 else
-    log_warn "Installation completed, but verification could not confirm key links. Please check manually."
+    log_warn "Installation completed, but these links are missing:$missing"
 fi
