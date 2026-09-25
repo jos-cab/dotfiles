@@ -6,8 +6,8 @@
 # + paru (sistema) y npm (global) del script original.
 #
 # Uso:
-#   system-update.sh              # menú interactivo (default)
-#   system-update.sh --all        # corre todo (opción 6)
+#   system-update.sh              # menú de tareas seleccionables
+#   system-update.sh --all        # corre todo
 #   system-update.sh --update     # solo updates
 #   system-update.sh --cleanup    # solo limpieza
 #   system-update.sh --health     # solo health check
@@ -27,6 +27,15 @@ PACMAN_CACHE_KEEP="${PACMAN_CACHE_KEEP:-2}"  # paccache -rkN (cuántas versiones
 LOCKFILE="/tmp/system-update.lock"
 LOGDIR="${XDG_STATE_HOME:-$HOME/.local/state}/system-update"
 LOGFILE="$LOGDIR/update-$(date +%Y-%m-%d_%H%M%S).log"
+KEEP_LOG=0
+cleanup_on_exit() {
+    local rc=$?
+    if [[ $KEEP_LOG -eq 0 && -f "$LOGFILE" ]]; then
+        rm -f "$LOGFILE" 2>/dev/null || true
+    fi
+    exit $rc
+}
+trap cleanup_on_exit EXIT INT TERM
 DISK_WARN_THRESHOLD=90                   # % uso para warning
 DISK_CRIT_THRESHOLD=95                   # % uso para crítico
 REBOOT_CHECK_KERNELS=("linux" "linux-zen" "linux-lts" "linux-hardened")
@@ -111,6 +120,7 @@ need_cmd() {
 
 confirm() {
     local prompt="$1" def="${2:-N}" ans
+    [[ "${AUTO_CONFIRM:-0}" -eq 1 ]] && return 0
     if [[ "$def" == "Y" ]]; then
         prompt+=" [Y/n]: "
     else
@@ -124,7 +134,7 @@ confirm() {
     ans="${ans:-$def}"
     # permitir q para salir rápido
     if [[ "$ans" =~ ^[qQ]$ ]]; then
-        log "Abortado por el usuario (q)."
+        log "Aborted by user (q)."
         exit 0
     fi
     [[ "$ans" =~ ^[Yy]$ ]]
@@ -136,7 +146,7 @@ pause_before_close() {
         echo ""
         # read con timeout implícito: Ctrl+C sale, q sale
         local ans
-        if ! read -r -p "$(echo -e "${C_DIM}Press ENTER para cerrar (q para salir)…${C_RESET} ")" ans; then
+        if ! read -r -p "$(echo -e "${C_DIM}Press ENTER to close (q to quit)…${C_RESET} ")" ans; then
             exit 0
         fi
         [[ "${ans,,}" == "q" ]] && exit 0
@@ -152,22 +162,22 @@ handle_post_failure() {
     done
     [[ $has_fail -eq 0 ]] && return 0
     echo ""
-    warn_msg "Algunas tareas fallaron — el resto continuó para no bloquearte."
+    warn_msg "Some tasks failed — remaining tasks continued."
     if [[ ! -t 0 ]]; then
         return 0
     fi
     echo ""
-    log "  ${C_YELLOW}¿Qué quieres hacer ahora?${C_RESET}"
-    log "    ${C_BOLD}[r]${C_RESET} Reintentar  ${C_BOLD}[m]${C_RESET} Menú interactivo  ${C_BOLD}[c/Enter]${C_RESET} Cerrar  ${C_BOLD}[q]${C_RESET} Salir"
+    log "  ${C_YELLOW}What would you like to do now?${C_RESET}"
+    log "    ${C_BOLD}[r]${C_RESET} Retry  ${C_BOLD}[m]${C_RESET} Menu  ${C_BOLD}[c/Enter]${C_RESET} Close  ${C_BOLD}[q]${C_RESET} Quit"
     local ans
-    if ! read -r -p "$(echo -e "${C_CYAN}Elige [r/m/c/q]: ${C_RESET}")" ans; then
+    if ! read -r -p "$(echo -e "${C_CYAN}Choose [r/m/c/q]: ${C_RESET}")" ans; then
         exit 1
     fi
     ans="${ans:-c}"
     case "${ans,,}" in
-        r) log "Reintentando: $0 ${orig_args[*]}"; exec "$0" "${orig_args[@]}" ;;
-        m) log "Abriendo menú interactivo…"; interactive_menu; exit 0 ;;
-        c|q|"") log "Saliendo."; exit 0 ;;
+        r) log "Retrying: $0 ${orig_args[*]}"; exec "$0" "${orig_args[@]}" ;;
+        m) log "Opening menu…"; interactive_menu; exit 0 ;;
+        c|q|"") log "Exiting."; exit 0 ;;
         *) exit 0 ;;
     esac
 }
@@ -176,9 +186,9 @@ handle_post_failure() {
 # Single instance (41)
 # ─────────────────────────────────────────────
 acquire_lock() {
-    exec 200>"$LOCKFILE" || { fail "No se pudo abrir lockfile $LOCKFILE"; exit 1; }
+    exec 200>"$LOCKFILE" || { fail "Could not open lockfile $LOCKFILE"; exit 1; }
     if ! flock -n 200; then
-        fail "Otra instancia de system-update ya está en ejecución (lock $LOCKFILE)"
+        fail "Another instance of system-update is already running (lock $LOCKFILE)"
         exit 1
     fi
     # el lock se libera automáticamente al cerrar fd 200 / salir
@@ -190,12 +200,12 @@ acquire_lock() {
 SUDO_PID=""
 ensure_sudo() {
     if sudo -n true 2>/dev/null; then
-        info "Sesión sudo ya activa"
+        info "Sudo session already active"
         return 0
     fi
-    step "Autenticando sudo (se pedirá contraseña una sola vez)"
+    step "Authenticating sudo"
     if ! sudo -v; then
-        fail "No se pudo autenticar sudo — se continuará sin sudo donde sea posible (Ctrl+C para abortar)"
+        fail "Could not authenticate sudo — continuing without sudo where possible (Ctrl+C to abort)"
         return 1
     fi
     # keep-alive en background
@@ -205,9 +215,9 @@ ensure_sudo() {
     local prev_exit
     prev_exit="$(trap -p EXIT | sed -n "s/trap -- '\(.*\)' EXIT/\1/p")"
     # shellcheck disable=SC2064
-    trap "kill \"$SUDO_PID\" 2>/dev/null || true; ${prev_exit:-};" EXIT
-    trap 'kill "$SUDO_PID" 2>/dev/null || true; echo ""; log "Interrumpido (Ctrl+C)."; exit 130' INT TERM
-    ok "sudo autenticado (keep-alive PID $SUDO_PID)"
+    trap "kill \"$SUDO_PID\" 2>/dev/null || true; ${prev_exit:-cleanup_on_exit};" EXIT
+    trap 'kill "$SUDO_PID" 2>/dev/null || true; echo ""; log "Interrupted (Ctrl+C)."; cleanup_on_exit' INT TERM
+    ok "sudo authenticated (keep-alive PID $SUDO_PID)"
 }
 
 # ─────────────────────────────────────────────
@@ -226,20 +236,54 @@ has_pacnew() {
 # Update modules
 # ─────────────────────────────────────────────
 
+update_reflector() {
+    step "Mirrors — reflector"
+    if ! need_cmd reflector; then
+        skip "reflector not installed"
+        record "reflector" "SKIP" "not installed"
+        return 0
+    fi
+    if sudo_run reflector --latest 20 --protocol https --sort rate --save /etc/pacman.d/mirrorlist; then
+        ok "Mirrorlist updated"
+        record "reflector" "OK"
+    else
+        fail "reflector failed"
+        record "reflector" "FAIL"
+        return 1
+    fi
+}
+
+repair_pacman_keys() {
+    step "Keys — pacman-key"
+    if ! need_cmd pacman-key; then
+        skip "pacman-key not found"
+        record "pacman_keys" "SKIP"
+        return 0
+    fi
+    if sudo_run pacman-key --init && sudo_run pacman-key --populate archlinux; then
+        ok "pacman keys initialized and populated"
+        record "pacman_keys" "OK"
+    else
+        fail "Could not repair pacman keys"
+        record "pacman_keys" "FAIL"
+        return 1
+    fi
+}
+
 update_system() {
-    step "Sistema — paru -Syu"
+    step "System — paru -Syu"
     if ! need_cmd paru; then
-        skip "paru no instalado — omitido"
-        record "paru" "SKIP" "no instalado"
+        skip "paru not installed — skipped"
+        record "paru" "SKIP" "not installed"
         return 0
     fi
     # (40) skip_unnecessary: si no hay nada para actualizar, avisar pero igual correr?
     # paru no tiene dry-run barato sin sync; lo ejecutamos directo.
     if paru -Syu --noconfirm 2>&1 | tee -a "$LOGFILE"; then
-        ok "paru -Syu completado"
+        ok "paru -Syu completed"
         record "paru" "OK"
     else
-        fail "paru -Syu falló (ver log $LOGFILE)"
+        fail "paru -Syu failed (see log $LOGFILE)"
         record "paru" "FAIL"
         return 1
     fi
@@ -267,15 +311,14 @@ sudo_run() {
 }
 
 update_npm() {
-    step "npm — paquetes globales"
+    step "npm — global packages"
     if ! need_cmd npm; then
-        skip "npm no instalado — omitido"
-        record "npm" "SKIP" "no instalado"
+        skip "npm not installed — skipped"
+        record "npm" "SKIP" "not installed"
         return 0
     fi
-    info "Actualizando paquetes globales; puede pedir contraseña sudo"
     if ! sudo_run npm -g update; then
-        fail "npm update falló o fue cancelado"
+        fail "npm update failed or was cancelled"
         record "npm" "FAIL"
         return 1
     fi
@@ -286,8 +329,8 @@ update_npm() {
 update_uv_tools() {  # (3)
     step "uv — tool upgrade --all"
     if ! need_cmd uv; then
-        skip "uv no instalado — omitido"
-        record "uv" "SKIP" "no instalado"
+        skip "uv not installed — skipped"
+        record "uv" "SKIP" "not installed"
         return 0
     fi
     # (40) si no hay tools, skip
@@ -296,16 +339,16 @@ update_uv_tools() {  # (3)
         local count
         count=$(uv tool list 2>/dev/null | wc -l)
         if [[ "$count" -le 1 ]]; then
-            skip "sin uv tools instaladas"
-            record "uv" "SKIP" "sin tools"
+            skip "no uv tools installed"
+            record "uv" "SKIP" "no tools"
             return 0
         fi
     fi
     if uv tool upgrade --all 2>&1 | tee -a "$LOGFILE"; then
-        ok "uv tools actualizadas"
+        ok "uv tools updated"
         record "uv" "OK"
     else
-        fail "uv tool upgrade falló"
+        fail "uv tool upgrade failed"
         record "uv" "FAIL"
         return 1
     fi
@@ -314,22 +357,22 @@ update_uv_tools() {  # (3)
 update_pipx() {  # (28)
     step "pipx — upgrade-all"
     if ! need_cmd pipx; then
-        skip "pipx no instalado — omitido"
-        record "pipx" "SKIP" "no instalado"
+        skip "pipx not installed — skipped"
+        record "pipx" "SKIP" "not installed"
         return 0
     fi
     local list
     list=$(pipx list 2>/dev/null || true)
     if ! echo "$list" | grep -q "package"; then
-        skip "sin paquetes pipx"
-        record "pipx" "SKIP" "sin paquetes"
+        skip "no pipx packages"
+        record "pipx" "SKIP" "no packages"
         return 0
     fi
     if pipx upgrade-all 2>&1 | tee -a "$LOGFILE"; then
         ok "pipx upgrade-all OK"
         record "pipx" "OK"
     else
-        fail "pipx upgrade-all falló"
+        fail "pipx upgrade-all failed"
         record "pipx" "FAIL"
         return 1
     fi
@@ -340,7 +383,7 @@ update_pipx() {  # (28)
 # ─────────────────────────────────────────────
 
 check_disk_space() {  # (13)
-    step "Chequeo — espacio en disco (/, /home, /boot)"
+    step "Check — disk space (/, /home, /boot)"
     local failed=0
     for mnt in "/" "/home" "/boot" "/efi"; do
         [[ -d "$mnt" ]] || continue
@@ -351,44 +394,47 @@ check_disk_space() {  # (13)
         use_perc=$(echo "$line" | awk '{print $5}' | tr -d '%')
         avail=$(echo "$line" | awk '{print $4}')
         if [[ "$use_perc" -ge "$DISK_CRIT_THRESHOLD" ]]; then
-            fail "$mnt al ${use_perc}% (disp. $avail) — CRÍTICO"
+            fail "$mnt at ${use_perc}% (avail: $avail) — CRITICAL"
             failed=1
         elif [[ "$use_perc" -ge "$DISK_WARN_THRESHOLD" ]]; then
-            warn_msg "$mnt al ${use_perc}% (disp. $avail) — bajo espacio"
+            warn_msg "$mnt at ${use_perc}% (avail: $avail) — low space"
         else
-            ok "$mnt ${use_perc}% usado (disp. $avail)"
+            ok "$mnt ${use_perc}% used (avail: $avail)"
         fi
         log_plain "    $line"
     done
     if [[ $failed -eq 1 ]]; then
-        record "disk" "WARN" "espacio crítico en alguna partición"
+        record "disk" "WARN" "critical space on one or more partitions"
     else
         record "disk" "OK"
     fi
 }
 
 check_package_integrity() {  # (14)
-    step "Chequeo — integridad de paquetes (pacman -Qk)"
+    step "Check — package integrity (pacman -Qk)"
     if ! need_cmd pacman; then
-        skip "pacman no encontrado"
+        skip "pacman not found"
         record "integrity" "SKIP"
         return 0
     fi
-    local out rc
-    out=$(pacman -Qk 2>&1 | tee -a "$LOGFILE" || true)
-    # pacman -Qk devuelve 0 aunque haya warnings; detectamos líneas con "missing" o "altered"
-    if echo "$out" | grep -qiE "missing|warning|error"; then
-        warn_msg "Se detectaron archivos faltantes/modificados (ver log)"
-        echo "$out" | grep -iE "missing|warning" | head -n 20 | while read -r l; do log "    $l"; done
-        record "integrity" "WARN" "archivos faltantes/modificados"
+    local out
+    if sudo -n true 2>/dev/null; then
+        out=$(sudo pacman -Qk 2>&1 | tee -a "$LOGFILE" || true)
     else
-        ok "Integridad OK"
+        out=$(pacman -Qk 2>&1 | tee -a "$LOGFILE" || true)
+    fi
+    if echo "$out" | grep -qiE "missing files"; then
+        warn_msg "Missing files detected (see log)"
+        echo "$out" | grep -iE "missing files" | grep -v "0 missing files" | head -n 20 | while read -r l; do log "    $l"; done
+        record "integrity" "WARN" "missing files"
+    else
+        ok "Integrity OK"
         record "integrity" "OK"
     fi
 }
 
 check_pacnew() {  # (11)
-    step "Chequeo — .pacnew / .pacsave"
+    step "Check — .pacnew / .pacsave"
     local files=""
     if need_cmd pacdiff; then
         files=$(pacdiff -o 2>/dev/null || true)
@@ -396,47 +442,42 @@ check_pacnew() {  # (11)
         files=$(find /etc -name "*.pacnew" -o -name "*.pacsave" 2>/dev/null || true)
     fi
     if [[ -z "$files" ]]; then
-        ok "Sin .pacnew/.pacsave pendientes"
+        ok "No pending .pacnew/.pacsave files"
         record "pacnew" "OK"
         return 0
     fi
     local count
     count=$(echo "$files" | wc -l)
-    warn_msg "$count archivo(s) requieren atención:"
+    warn_msg "$count file(s) require attention:"
     echo "$files" | while read -r f; do log "    ${C_YELLOW}[pacnew]${C_RESET} $f"; done
-    record "pacnew" "WARN" "$count archivo(s)"
-    if confirm "¿Abrir pacdiff para fusionar?" "N"; then
+    record "pacnew" "WARN" "$count file(s)"
+    if [[ "${AUTO_CONFIRM:-0}" -eq 1 ]]; then
+        info "Skipped — review manually with: pacdiff -o && sudo pacdiff"
+    elif confirm "Open pacdiff to merge?" "N"; then
         if ! need_cmd pacdiff; then
-            warn_msg "pacdiff no instalado (pacman-contrib). Archivos listados arriba."
+            warn_msg "pacdiff not installed (pacman-contrib). Files listed above."
         elif ! sudo -n true 2>/dev/null; then
-            warn_msg "sudo no disponible — revisa manualmente con: pacdiff -o && sudo pacdiff"
+            warn_msg "sudo not available — review manually with: pacdiff -o && sudo pacdiff"
         else
             # pacdiff es interactivo; no redirigir a log
             sudo pacdiff || true
         fi
     else
-        info "Omitido — revisa manualmente con: pacdiff -o && sudo pacdiff"
+        info "Skipped — review manually with: pacdiff -o && sudo pacdiff"
     fi
 }
 
 check_reboot_required() {  # (17)
-    step "Chequeo — ¿reinicio requerido?"
+    step "Check — reboot required?"
     local need_reboot=0 reason=""
 
-    # 1) kernel en ejecución vs. instalado
-    local running installed
+    # 1) kernel en ejecución vs módulos en disco
+    local running
     running=$(uname -r)
-    for pkg in "${REBOOT_CHECK_KERNELS[@]}"; do
-        if pacman -Q "$pkg" &>/dev/null; then
-            installed=$(pacman -Q "$pkg" 2>/dev/null | awk '{print $2}' | cut -d- -f1)
-            # comparación simple: si running no contiene installed, probablemente hay desfasaje
-            if [[ "$running" != *"$installed"* ]]; then
-                need_reboot=1
-                reason+="kernel $pkg actualizado ($installed) vs running $running; "
-            fi
-            break
-        fi
-    done
+    if [[ ! -d "/usr/lib/modules/$running" ]]; then
+        need_reboot=1
+        reason+="running kernel $running modules replaced on disk; "
+    fi
 
     # 2) librerías borradas en uso (lsof +D o checkservices)
     if need_cmd lsof; then
@@ -444,7 +485,7 @@ check_reboot_required() {  # (17)
         deleted=$(lsof +c 0 2>/dev/null | grep -c "(deleted)" || true)
         if [[ "$deleted" -gt 0 ]]; then
             need_reboot=1
-            reason+="$deleted procesos con librerías borradas; "
+            reason+="$deleted processes using deleted libraries; "
         fi
     elif need_cmd needrestart 2>/dev/null; then
         : # alternativa no implementada
@@ -453,15 +494,15 @@ check_reboot_required() {  # (17)
     # 3) flag explícito de algunas distros
     if [[ -f /run/reboot-required ]]; then
         need_reboot=1
-        reason+="/run/reboot-required presente; "
+        reason+="/run/reboot-required present; "
     fi
 
     if [[ $need_reboot -eq 1 ]]; then
-        warn_msg "REINICIO RECOMENDADO — $reason"
-        log "    ${C_YELLOW}Sugerencia: reinicia cuando te sea conveniente (sudo reboot)${C_RESET}"
-        record "reboot" "WARN" "reinicio recomendado"
+        warn_msg "REBOOT RECOMMENDED — $reason"
+        log "    ${C_YELLOW}Hint: reboot when convenient (sudo reboot)${C_RESET}"
+        record "reboot" "WARN" "reboot recommended"
     else
-        ok "No se requiere reinicio"
+        ok "No reboot required"
         record "reboot" "OK"
     fi
 }
@@ -471,163 +512,159 @@ check_reboot_required() {  # (17)
 # ─────────────────────────────────────────────
 
 show_cache_usage() {  # (34)
-    step "Cachés — uso de disco"
+    step "Caches — disk usage"
     local total_line=""
     # pacman cache
     if [[ -d /var/cache/pacman/pkg ]]; then
         local sz
-        sz=$(du -sh /var/cache/pacman/pkg 2>/dev/null | cut -f1)
-        log "    pacman cache: ${C_BOLD}$sz${C_RESET}  (/var/cache/pacman/pkg)"
+        sz=$(du -sh /var/cache/pacman/pkg 2>/dev/null | awk '{print $1}')
+        log "    pacman cache: ${C_BOLD}${sz:-?}${C_RESET}  (/var/cache/pacman/pkg)"
     else
-        log "    pacman cache: no encontrado"
+        log "    pacman cache: not found"
     fi
     # paru cache: build + pkg cache
     local paru_cache="$HOME/.cache/paru"
     if [[ -d "$paru_cache" ]]; then
         local sz2
-        sz2=$(du -sh "$paru_cache" 2>/dev/null | cut -f1)
-        log "    paru cache:   ${C_BOLD}$sz2${C_RESET}  ($paru_cache)"
+        sz2=$(du -sh "$paru_cache" 2>/dev/null | awk '{print $1}')
+        log "    paru cache:   ${C_BOLD}${sz2:-?}${C_RESET}  ($paru_cache)"
         # detalle clone
         if [[ -d "$paru_cache/clone" ]]; then
             local szc
-            szc=$(du -sh "$paru_cache/clone" 2>/dev/null | cut -f1)
-            log "      └─ clone: $szc"
+            szc=$(du -sh "$paru_cache/clone" 2>/dev/null | awk '{print $1}')
+            log "      └─ clone: ${szc:-?}"
         fi
     else
-        log "    paru cache:   no encontrado"
+        log "    paru cache:   not found"
     fi
     # journal
     if need_cmd journalctl; then
         local jsz
-        jsz=$(journalctl --disk-usage 2>/dev/null | grep -oE "[0-9.]+[KMGT]B" | head -1 || echo "?")
-        log "    journal:      ${C_BOLD}$jsz${C_RESET}"
+        jsz=$(journalctl --disk-usage 2>/dev/null | grep -oE "[0-9.]+[a-zA-Z]+" | head -1 || echo "?")
+        log "    journal:      ${C_BOLD}${jsz:-?}${C_RESET}"
     fi
     # pipx/uv caches opcionales
     if [[ -d "$HOME/.cache/pip" ]]; then
-        log "    pip cache:    $(du -sh "$HOME/.cache/pip" 2>/dev/null | cut -f1)"
+        local spip
+        spip=$(du -sh "$HOME/.cache/pip" 2>/dev/null | awk '{print $1}')
+        log "    pip cache:    ${spip:-?}"
     fi
     record "cache_usage" "OK"
 }
 
 cleanup_pacman_cache() {  # (8)
-    step "Limpieza — caché pacman (paccache -rk$PACMAN_CACHE_KEEP)"
+    step "Cleanup — pacman cache (paccache -rk$PACMAN_CACHE_KEEP)"
     if ! need_cmd paccache; then
-        skip "paccache no instalado (pacman-contrib) — omitido"
-        record "pacman_cache" "SKIP" "paccache no instalado"
+        skip "paccache not installed (pacman-contrib) — skipped"
+        record "pacman_cache" "SKIP" "paccache not installed"
         return 0
     fi
     if ! sudo -n true 2>/dev/null; then
-        skip "paccache omitido — sudo no disponible"
-        record "pacman_cache" "SKIP" "sin sudo"
+        skip "paccache skipped — sudo not available"
+        record "pacman_cache" "SKIP" "no sudo"
         return 0
     fi
     local before after
-    before=$(du -sh /var/cache/pacman/pkg 2>/dev/null | cut -f1 || echo "?")
-    info "Tamaño antes: $before"
+    before=$(du -sh /var/cache/pacman/pkg 2>/dev/null | awk '{print $1}')
+    before="${before:-?}"
+    info "Size before: $before"
     if sudo paccache -rk"$PACMAN_CACHE_KEEP" 2>&1 | tee -a "$LOGFILE"; then
-        after=$(du -sh /var/cache/pacman/pkg 2>/dev/null | cut -f1 || echo "?")
-        ok "Caché limpiada (antes $before → ahora $after)"
+        after=$(du -sh /var/cache/pacman/pkg 2>/dev/null | awk '{print $1}')
+        after="${after:-?}"
+        ok "Cache cleaned ($before → $after)"
         record "pacman_cache" "OK" "$before → $after"
     else
-        fail "paccache falló"
+        fail "paccache failed"
         record "pacman_cache" "FAIL"
         return 1
     fi
 }
 
 cleanup_paru_cache() {  # (10) conservadora
-    step "Limpieza — caché paru (conservadora)"
+    step "Cleanup — paru cache (conservative)"
     local cache_dir="$HOME/.cache/paru"
     if [[ ! -d "$cache_dir" ]] && ! need_cmd paru; then
-        skip "paru no instalado / sin caché"
-        record "paru_cache" "SKIP" "sin caché"
+        skip "paru not installed / no cache"
+        record "paru_cache" "SKIP" "no cache"
         return 0
-    fi
-    # paru -Sc elimina solo paquetes no instalados (conservador)
-    # NO usamos -Scc que vacía todo
-    if need_cmd paru; then
-        info "Ejecutando: paru -Sc --noconfirm (solo no instalados)"
-        if paru -Sc --noconfirm 2>&1 | tee -a "$LOGFILE"; then
-            ok "paru -Sc OK"
-        else
-            warn_msg "paru -Sc devolvió error (puede ser normal si no había nada)"
-        fi
     fi
     # clones viejos: informativo
     if [[ -d "$cache_dir/clone" ]]; then
         local count size
         count=$(find "$cache_dir/clone" -maxdepth 1 -type d 2>/dev/null | wc -l)
-        size=$(du -sh "$cache_dir/clone" 2>/dev/null | cut -f1)
-        info "clones AUR: $((count-1)) directorios, $size"
-        if confirm "¿Limpiar clones no usados hace >30 días? (find -mtime +30)" "N"; then
-            find "$cache_dir/clone" -mindepth 1 -maxdepth 1 -type d -mtime +30 -print 2>/dev/null | while read -r d; do log "    borrando $d"; done
+        size=$(du -sh "$cache_dir/clone" 2>/dev/null | awk '{print $1}')
+        info "AUR clones: $((count-1)) directories, $size"
+        if confirm "Clean clones unused for >30 days? (find -mtime +30)" "N"; then
+            find "$cache_dir/clone" -mindepth 1 -maxdepth 1 -type d -mtime +30 -print 2>/dev/null | while read -r d; do log "    removing $d"; done
             find "$cache_dir/clone" -mindepth 1 -maxdepth 1 -type d -mtime +30 -exec rm -rf {} + 2>/dev/null || true
-            ok "Clones viejos limpiados"
+            ok "Old clones removed"
         else
-            info "Clones conservados"
+            info "Clones preserved"
         fi
     fi
     record "paru_cache" "OK"
 }
 
 check_orphans() {  # (9)
-    step "Limpieza — paquetes huérfanos (pacman -Qtd)"
+    step "Cleanup — orphan packages (pacman -Qtd)"
     local orphans
     orphans=$(pacman -Qtdq 2>/dev/null || true)
     if [[ -z "$orphans" ]]; then
-        ok "Sin huérfanos"
+        ok "No orphan packages"
         record "orphans" "OK"
         return 0
     fi
     local count
     count=$(echo "$orphans" | wc -l)
-    warn_msg "$count huérfano(s) detectado(s):"
+    warn_msg "$count orphan package(s) detected:"
     echo "$orphans" | while read -r p; do log "    $p"; done
     # mostrar detalle
     pacman -Qtd 2>/dev/null | head -n 20 | while read -r l; do log "    $l"; done
-    log "    ${C_DIM}(Revisa: pacman -Qtd — Arch recomienda no borrar a ciegas)${C_RESET}"
-    record "orphans" "WARN" "$count huérfano(s)"
-    if confirm "¿Eliminar huérfanos ahora? (pacman -Rns)" "N"; then
+    log "    ${C_DIM}(Review: pacman -Qtd — Arch recommends not removing blindly)${C_RESET}"
+    record "orphans" "WARN" "$count orphan(s)"
+    if confirm "Remove orphans now? (pacman -Rns)" "N"; then
         if ! sudo -n true 2>/dev/null; then
-            fail "No se pudieron eliminar huérfanos — sudo no disponible"
-            record "orphans" "FAIL" "sin sudo"
+            fail "Could not remove orphans — sudo not available"
+            record "orphans" "FAIL" "no sudo"
             return 1
         fi
         # shellcheck disable=SC2046
         if sudo pacman -Rns $(pacman -Qtdq) 2>&1 | tee -a "$LOGFILE"; then
-            ok "Huérfanos eliminados"
-            record "orphans" "OK" "eliminados"
+            ok "Orphans removed"
+            record "orphans" "OK" "removed"
         else
-            fail "No se pudieron eliminar huérfanos"
+            fail "Could not remove orphans"
             record "orphans" "FAIL"
             return 1
         fi
     else
-        info "Huérfanos conservados"
+        info "Orphans preserved"
     fi
 }
 
 vacuum_journal() {  # (35)
-    step "Limpieza — journal (vacuum-time=$JOURNAL_KEEP)"
+    step "Cleanup — journal (vacuum-time=$JOURNAL_KEEP)"
     if ! need_cmd journalctl; then
-        skip "journalctl no disponible"
+        skip "journalctl not available"
         record "journal" "SKIP"
         return 0
     fi
     if ! sudo -n true 2>/dev/null; then
-        skip "journal vacuum omitido — sudo no disponible"
-        record "journal" "SKIP" "sin sudo"
+        skip "journal vacuum skipped — sudo not available"
+        record "journal" "SKIP" "no sudo"
         return 0
     fi
     local before after
-    before=$(journalctl --disk-usage 2>/dev/null | grep -oE "[0-9.]+[KMGT]B" | head -1 || echo "?")
-    info "Tamaño antes: $before"
+    before=$(journalctl --disk-usage 2>/dev/null | grep -oE "[0-9.]+[a-zA-Z]+" | head -1)
+    before="${before:-?}"
+    info "Size before: $before"
     if sudo journalctl --vacuum-time="$JOURNAL_KEEP" 2>&1 | tee -a "$LOGFILE"; then
-        after=$(journalctl --disk-usage 2>/dev/null | grep -oE "[0-9.]+[KMGT]B" | head -1 || echo "?")
-        ok "Journal vacuum OK (antes $before → ahora $after)"
+        after=$(journalctl --disk-usage 2>/dev/null | grep -oE "[0-9.]+[a-zA-Z]+" | head -1)
+        after="${after:-?}"
+        ok "Journal vacuum OK ($before → $after)"
         record "journal" "OK" "$before → $after"
     else
-        fail "journal vacuum falló"
+        fail "journal vacuum failed"
         record "journal" "FAIL"
         return 1
     fi
@@ -638,7 +675,7 @@ vacuum_journal() {  # (35)
 # ─────────────────────────────────────────────
 show_summary() {
     separator
-    section "RESUMEN"
+    section "SUMMARY"
     local has_fail=0 has_warn=0
     for key in "${ORDER[@]}"; do
         local val="${RESULTS[$key]}"
@@ -655,11 +692,11 @@ show_summary() {
     done
     echo ""
     if [[ $has_fail -eq 1 ]]; then
-        log "  ${C_RED}${C_BOLD}Algunas tareas fallaron — revisa el log: $LOGFILE${C_RESET}"
+        log "  ${C_RED}${C_BOLD}Some tasks failed — check log: $LOGFILE${C_RESET}"
     elif [[ $has_warn -eq 1 ]]; then
-        log "  ${C_YELLOW}Completado con advertencias — revisa arriba.${C_RESET}"
+        log "  ${C_YELLOW}Completed with warnings — see above.${C_RESET}"
     else
-        log "  ${C_GREEN}${C_BOLD}Todo OK${C_RESET}"
+        log "  ${C_GREEN}${C_BOLD}All OK${C_RESET}"
     fi
     log "  ${C_DIM}Log: $LOGFILE${C_RESET}"
     echo ""
@@ -682,7 +719,7 @@ send_notify() {
 # ─────────────────────────────────────────────
 
 run_updates() {
-    section "ACTUALIZACIONES"
+    section "UPDATES"
     update_system || true
     update_npm || true
     update_uv_tools || true
@@ -696,31 +733,29 @@ run_devtools() {
 }
 
 run_cleanup() {
-    section "LIMPIEZA"
+    section "CLEANUP"
     show_cache_usage || true
     # cada limpieza pregunta; no es destructiva sin confirmar (salvo paccache/paru -Sc)
-    if confirm "¿Limpiar caché pacman (paccache -rk$PACMAN_CACHE_KEEP)?" "N"; then
+    if confirm "Clean pacman cache (paccache -rk$PACMAN_CACHE_KEEP)?" "N"; then
         cleanup_pacman_cache || true
     else
-        skip "caché pacman conservada"
-        record "pacman_cache" "SKIP" "usuario omitió"
+        skip "pacman cache preserved"
+        record "pacman_cache" "SKIP" "user skipped"
     fi
     cleanup_paru_cache || true
     check_orphans || true
-    if confirm "¿Vacuum journal (--vacuum-time=$JOURNAL_KEEP)?" "N"; then
+    if confirm "Vacuum journal (--vacuum-time=$JOURNAL_KEEP)?" "N"; then
         vacuum_journal || true
     else
-        skip "journal conservado"
-        record "journal" "SKIP" "usuario omitió"
+        skip "journal preserved"
+        record "journal" "SKIP" "user skipped"
     fi
 }
 
 run_health() {
     section "HEALTH CHECK"
-    check_disk_space || true
     check_package_integrity || true
     check_pacnew || true
-    check_reboot_required || true
     show_cache_usage || true
 }
 
@@ -734,72 +769,159 @@ run_everything() {
     run_full_maintenance
 }
 
-# ─────────────────────────────────────────────
-# Interactive menu (42)
-# ─────────────────────────────────────────────
-interactive_menu() {
-    # Ctrl+C cancela la tarea actual y vuelve al menú; Ctrl+D/q sale.
-    trap 'echo ""; warn_msg "Interrumpido — volviendo al menú…"' INT
-    while true; do
-        RESULTS=()
-        ORDER=()
-        header "SYSTEM UPDATE"
-        cat <<'MENU'
-  1) Full update              (paru + npm + uv + pipx)
-  2) Dev tools                (uv + pipx)
-  3) Cleanup                  (caché pacman/paru, huérfanos, journal)
-  4) Health check             (disco, integridad, pacnew, reinicio, cachés)
-  5) Full maintenance         (update + cleanup + health)
-  6) Run everything           (update + cleanup + health + resumen)
+save_log_prompt() {
+    if confirm "Save log to $LOGFILE?" "N"; then
+        KEEP_LOG=1
+        log "Log saved: $LOGFILE"
+    else
+        KEEP_LOG=0
+        rm -f "$LOGFILE" 2>/dev/null || true
+    fi
+}
 
-  q) Quit
-MENU
+run_selected() {
+    ensure_sudo || true
+    AUTO_CONFIRM=1
+    [[ ${SELECT_PREFLIGHT:-0} -eq 1 ]] && check_disk_space || true
+    [[ ${SELECT_REFLECTOR:-0} -eq 1 ]] && update_reflector || true
+    [[ ${SELECT_KEYS:-0} -eq 1 ]] && repair_pacman_keys || true
+    [[ ${SELECT_UPDATE:-0} -eq 1 ]] && update_system || true
+    [[ ${SELECT_NPM:-0} -eq 1 ]] && update_npm || true
+    [[ ${SELECT_UV:-0} -eq 1 ]] && update_uv_tools || true
+    [[ ${SELECT_PIPX:-0} -eq 1 ]] && update_pipx || true
+    [[ ${SELECT_HEALTH:-0} -eq 1 ]] && run_health || true
+    [[ ${SELECT_ORPHANS:-0} -eq 1 ]] && check_orphans || true
+    [[ ${SELECT_CACHE:-0} -eq 1 ]] && cleanup_pacman_cache || true
+    [[ ${SELECT_CACHE:-0} -eq 1 ]] && cleanup_paru_cache || true
+    [[ ${SELECT_JOURNAL:-0} -eq 1 ]] && vacuum_journal || true
+    check_reboot_required || true
+    show_summary
+    AUTO_CONFIRM=0
+    send_notify "System Update" "Selected tasks completed"
+    save_log_prompt
+}
+
+interactive_menu() {
+    local -a items=(
+        "Disk space"
+        "Update mirrors"
+        "Repair pacman keys"
+        "Update system (paru)"
+        "Update npm packages"
+        "Update uv tools"
+        "Update pipx tools"
+        "System health check"
+        "Remove orphan packages"
+        "Clean caches"
+        "Clean journal"
+    )
+    local -a sel=(0 0 0 1 0 0 0 0 0 0 0)
+    local cur=3 total=${#items[@]} key c esc
+
+    local icon_checked="󰄲"
+    local icon_unchecked="󰄱"
+
+    tput civis 2>/dev/null || true
+    trap 'tput cnorm 2>/dev/null || true' EXIT INT TERM
+
+    while true; do
+        printf '\033[H'
+        echo -e "${C_BOLD}Select tasks to execute:${C_RESET}"
         echo ""
-        local choice
-        if ! read -r -p "$(echo -e "${C_CYAN}Select an option: ${C_RESET}")" choice; then
-            log "Saliendo (EOF/Ctrl-D)."
-            exit 0
+        for ((i=0; i<total; i++)); do
+            if [[ ${sel[$i]} -eq 1 ]]; then
+                c="${C_GREEN}${icon_checked}${C_RESET}"
+            else
+                c="${C_DIM}${icon_unchecked}${C_RESET}"
+            fi
+            if [[ $i -eq $cur ]]; then
+                echo -e "  ${C_CYAN}${C_BOLD}❯ ${c}  ${items[$i]}${C_RESET}"
+            else
+                echo -e "    ${c}  ${items[$i]}"
+            fi
+        done
+        echo ""
+        if [[ $cur -eq $total ]]; then
+            echo -e "  ${C_CYAN}${C_BOLD}╭───────────────╮${C_RESET}"
+            echo -e "  ${C_CYAN}${C_BOLD}│   ✔ Apply     │${C_RESET}"
+            echo -e "  ${C_CYAN}${C_BOLD}╰───────────────╯${C_RESET}"
+        else
+            echo -e "  ${C_DIM}╭───────────────╮${C_RESET}"
+            echo -e "  ${C_DIM}│     Apply     │${C_RESET}"
+            echo -e "  ${C_DIM}╰───────────────╯${C_RESET}"
         fi
-        case "$choice" in
-            1) run_updates; show_summary; send_notify "System Update" "Full update terminado" ;;
-            2) run_devtools; show_summary; send_notify "System Update" "Dev tools terminados" ;;
-            3) run_cleanup; show_summary; send_notify "System Update" "Cleanup terminado" ;;
-            4) run_health; show_summary ;;
-            5) run_full_maintenance; show_summary; send_notify "System Update" "Full maintenance terminado" ;;
-            6) run_everything; show_summary; send_notify "System Update" "Run everything terminado" ;;
-            q|Q) log "Saliendo."; exit 0 ;;
-            *) warn_msg "Opción inválida: $choice" ;;
+        echo ""
+        echo -e "${C_DIM}↑/↓ move   Space/Enter toggle or apply   q quit${C_RESET}"
+        printf '\033[J'
+
+        IFS= read -rsn1 key || break
+        case "$key" in
+            q|Q)
+                tput cnorm 2>/dev/null || true
+                exit 0
+                ;;
+            " ")
+                if [[ $cur -lt $total ]]; then
+                    sel[$cur]=$(( 1 - sel[$cur] ))
+                else
+                    break
+                fi
+                ;;
+            "")
+                if [[ $cur -eq $total ]]; then
+                    break
+                fi
+                sel[$cur]=$(( 1 - sel[$cur] ))
+                ;;
+            $'\x1b')
+                read -rsn2 -t 0.05 esc || esc=""
+                case "$esc" in
+                    '[A') ((cur > 0)) && ((cur--)) ;;
+                    '[B') ((cur < total)) && ((cur++)) ;;
+                esac
+                ;;
         esac
-        echo ""
-        # Pausa que respeta Ctrl+C y q para salir
-        local _ans
-        if ! read -r -p "$(echo -e "${C_DIM}Press ENTER para volver al menú (q para salir)…${C_RESET} ")" _ans; then
-            exit 0
-        fi
-        [[ "${_ans,,}" == "q" ]] && exit 0
     done
+
+    tput cnorm 2>/dev/null || true
+    printf '\033[2J\033[H'
+
+    SELECT_PREFLIGHT=${sel[0]}
+    SELECT_REFLECTOR=${sel[1]}
+    SELECT_KEYS=${sel[2]}
+    SELECT_UPDATE=${sel[3]}
+    SELECT_NPM=${sel[4]}
+    SELECT_UV=${sel[5]}
+    SELECT_PIPX=${sel[6]}
+    SELECT_HEALTH=${sel[7]}
+    SELECT_ORPHANS=${sel[8]}
+    SELECT_CACHE=${sel[9]}
+    SELECT_JOURNAL=${sel[10]}
+
+    run_selected
+    pause_before_close
 }
 
 print_help() {
     cat <<EOF
-system-update — updater modular para Arch + Hyprland
+system-update — modular updater for Arch + Hyprland
 
-Uso: $(basename "$0") [opción]
+Usage: $(basename "$0") [option]
 
-Opciones:
-  (sin args)   menú interactivo
-  --all, -a    corre todo (update + cleanup + health) sin menú
-  --update     solo full update (paru, npm, uv, pipx)
-  --dev        solo dev tools (uv, pipx)
-  --cleanup    solo limpieza
-  --health     solo health check
-  --help, -h   esta ayuda
+Options:
+  (no args)    selectable task menu
+  --all, -a    run everything (update + cleanup + health) without menu
+  --update     full update only (paru, npm, uv, pipx)
+  --dev        dev tools only (uv, pipx)
+  --cleanup    cleanup only
+  --health     health check only
+  --help, -h   show this help
 
-Variables de entorno:
-  JOURNAL_KEEP=30d        días a conservar en journal vacuum
-  PACMAN_CACHE_KEEP=2     versiones a mantener en paccache
+Environment variables:
+  JOURNAL_KEEP=30d        days to keep in journal vacuum
+  PACMAN_CACHE_KEEP=2     versions to keep in paccache
 
-Log: \$LOGDIR/update-*.log  (actual: $LOGFILE)
+Log: \$LOGDIR/update-*.log  (current: $LOGFILE)
 Lock: $LOCKFILE
 EOF
 }
@@ -836,9 +958,9 @@ main() {
             local has_fail=0
             for k in "${!RESULTS[@]}"; do [[ "${RESULTS[$k]:-}" == FAIL* ]] && has_fail=1; done
             if [[ $has_fail -eq 1 ]]; then
-                send_notify "System Update — FAIL" "Algunas tareas fallaron. Log: $LOGFILE" critical
+                send_notify "System Update — FAIL" "Some tasks failed. Log: $LOGFILE" critical
             else
-                send_notify "System Update — OK" "Run everything completado"
+                send_notify "System Update — OK" "Run everything completed"
             fi
             handle_post_failure --all
             pause_before_close
@@ -847,7 +969,7 @@ main() {
             ensure_sudo || true
             header "FULL UPDATE"
             run_updates; show_summary
-            send_notify "System Update" "Full update terminado"
+            send_notify "System Update" "Full update completed"
             handle_post_failure --update
             pause_before_close
             ;;
@@ -869,11 +991,10 @@ main() {
             pause_before_close
             ;;
         "")
-            ensure_sudo || true
             interactive_menu
             ;;
         *)
-            echo "Opción desconocida: $1" >&2
+            echo "Unknown option: $1" >&2
             print_help
             exit 1
             ;;

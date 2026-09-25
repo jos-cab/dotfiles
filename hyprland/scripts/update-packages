@@ -11,9 +11,7 @@ if [[ ! -x "$SYSTEM_UPDATE" ]]; then
 fi
 
 if [[ -x "$SYSTEM_UPDATE" ]]; then
-    # --all = run everything sin menú; quita --all si prefieres el menú interactivo
-    # El script ya pausa solo al detectar kitty, no duplicamos read aquí
-    kitty -e "$SYSTEM_UPDATE" --all
+    kitty -e "$SYSTEM_UPDATE"
 else
     printf 'system-update.sh no encontrado o no es ejecutable: %s\n' "$SYSTEM_UPDATE" >&2
     exit 1
