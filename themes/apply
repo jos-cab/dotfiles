@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+THEME_FILE="${1:-$ROOT_DIR/themes/catppuccin-mocha.conf}"
+[ -f "$THEME_FILE" ] || { printf 'Theme not found: %s\n' "$THEME_FILE" >&2; exit 1; }
+
+THEME_FILES=(
+    "$ROOT_DIR/hyprland/appearance.lua" "$ROOT_DIR/kitty/colors.conf"
+    "$ROOT_DIR/kitty/window.conf" "$ROOT_DIR/kitty/theme.conf"
+    "$ROOT_DIR/waybar/style.css" "$ROOT_DIR/waybar/dock.css"
+    "$ROOT_DIR/wofi/style.css" "$ROOT_DIR/mako/config" "$ROOT_DIR/zathura/zathurarc"
+)
+templates=(
+    "$ROOT_DIR/themes/templates/hyprland__appearance.lua"
+    "$ROOT_DIR/themes/templates/kitty__colors.conf"
+    "$ROOT_DIR/themes/templates/kitty__window.conf"
+    "$ROOT_DIR/themes/templates/kitty__theme.conf"
+    "$ROOT_DIR/themes/templates/waybar__style.css"
+    "$ROOT_DIR/themes/templates/waybar__dock.css"
+    "$ROOT_DIR/themes/templates/wofi__style.css"
+    "$ROOT_DIR/themes/templates/mako__config"
+    "$ROOT_DIR/themes/templates/zathura__zathurarc"
+)
+old=(1e1e2e 181825 11111b 313244 45475a 585b70 cdd6f4 a6adc8 bac2de 6c7086 f5e0dc f2cdcd f5c2e7 cba6f7 f38ba8 eba0ac fab387 f9e2af a6e3a1 94e2d5 89dceb 74c7ec 89b4fa b4befe)
+mapfile -t new < <(awk -F '=' '{value=$2; gsub(/[[:space:]#]/, "", value); print tolower(value)}' "$THEME_FILE")
+
+for i in "${!THEME_FILES[@]}"; do
+    file="${THEME_FILES[$i]}"
+    template="${templates[$i]}"
+    [ -f "$template" ] || { printf 'Template not found: %s\n' "$template" >&2; exit 1; }
+    generated=$(mktemp)
+    cp "$template" "$generated"
+    for color in "${!old[@]}"; do
+        [ -n "${new[$color]:-}" ] || continue
+        perl -0pi -e "s/rgba\(${old[$color]}/rgba(${new[$color]}/g; s/#${old[$color]}/#${new[$color]}/g" "$generated"
+    done
+    mv "$generated" "$file"
+done
+
+command -v hyprctl >/dev/null 2>&1 && hyprctl reload >/dev/null 2>&1 || true
+command -v pkill >/dev/null 2>&1 && pkill -SIGUSR2 waybar 2>/dev/null || true
+command -v makoctl >/dev/null 2>&1 && makoctl reload 2>/dev/null || true
+printf 'Applied theme: %s\n' "$(basename "$THEME_FILE" .conf)"

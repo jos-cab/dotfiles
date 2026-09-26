@@ -66,6 +66,7 @@ is written in **Lua** and split into modules under `hyprland/`.
 -   Ask if you want to backup existing configuration files
 -   Create symbolic links from this repo to your `~/.config`
 -   Copy the `ananicy` rules to `/etc/ananicy.d` and enable `ananicy-cpp.service`
+-   Install `dotfiles-theme` in `~/.local/bin`
 -   Check the status of the PipeWire user services
 -   Offer to set zsh as your default shell
 
@@ -97,6 +98,52 @@ All prompts use single-key responses for a smoother experience.
 -   Modular config under `~/.config/zsh/` (aliases, functions, completions, integrations)
 -   Fast syntax highlighting and autosuggestions via Zinit
 -   Catppuccin Mocha colors throughout (`eza`, `bat`, prompt)
+
+### Centralized theme
+
+-   Source palettes live in `themes/*.conf`; generated configs use templates under `themes/templates/`
+-   Available themes: Catppuccin Mocha/Macchiato, Tokyo Night, Gruvbox Dark, Nord, Dracula, Rosé Pine and One Dark
+-   Apply a palette across Hyprland, Kitty, Waybar, Wofi, Mako and Zathura:
+
+    ```bash
+    dotfiles-theme themes/tokyo-night.conf
+    ```
+
+-   Neovim, GTK and Qt themes remain separate: they require their own installed theme packages/plugins.
+
+## Keybindings
+
+| Shortcut | Action |
+| --- | --- |
+| `Super + Enter` | Open Kitty |
+| `Super + E` | Open Thunar |
+| `Super + B` | Open Brave |
+| `Super + D` | Open Discord |
+| `Super + S` | Open Spotify |
+| `Super + M` | Open Wofi |
+| `Super + C` | Close window |
+| `Super + V` / `Super + Space` | Toggle floating |
+| `Super + Shift + Q` | Exit Hyprland |
+| `Super + H/J/K/L` | Focus left/down/up/right |
+| `Super + Shift + H/J/K/L` | Move window |
+| `Super + 1..0` | Switch workspace 1..10 |
+| `Super + Shift + 1..0` | Move window to workspace |
+| `Super + U` | System update menu |
+| `Super + P` | Color picker |
+| `Super + Shift + V` | Clipboard history |
+| `Print` | Screenshot selection |
+| `Super + Shift + O` | OCR selection |
+| `Super + Shift + R` | Read QR selection |
+| `Super + W` | Toggle Waybar |
+| `Super + Alt + Enter` | Toggle fullscreen |
+
+## CLI tools
+
+-   `zoxide`: smarter directory navigation; provides `z <directory>` based on frecency. Optional; only useful if you want `cd` history.
+-   `ripgrep` (`rg`): fast recursive text search. Useful for source-code search; no custom config is required here.
+-   `delta`: readable syntax-highlighted Git diffs. Optional; `zsh/integrations.zsh` activates it only when installed.
+
+These tools are not required by the core desktop configuration.
 
 ### Waybar
 
