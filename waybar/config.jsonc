@@ -29,7 +29,7 @@
     "warp-on-scroll": false,
     "cursor": true,
     "format": "{name}",
-    "move-to-monitor": true
+    "move-to-monitor": false
   },
   "hyprland/window": {
     "format": "{title}",

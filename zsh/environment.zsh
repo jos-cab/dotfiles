@@ -101,6 +101,8 @@ export PATH="$HOME/.local/bin:$PATH"
 export PATH="$HOME/bin:$PATH"
 
 # ======= Application Settings =======
+export COWPATH=/usr/share/cowsay/cows
+
 # Less settings
 export LESS='-R -i -w -M -z-4'
 export LESSHISTFILE=-
