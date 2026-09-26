@@ -20,6 +20,7 @@ is written in **Lua** and split into modules under `hyprland/`.
 | Editor | `nvim/` | Neovim + LazyVim |
 | PDF reader | `zathura/` | Zathura |
 | Image viewer | `imv/config` | imv |
+| System information | `fastfetch/` | Fastfetch |
 | Process priority | `ananicy/` | ananicy-cpp (submodule) |
 
 ## System Information

@@ -24,6 +24,8 @@ source "$ZSH_CONFIG_DIR/completions.zsh"  # Completion system
 source "$ZSH_CONFIG_DIR/plugins.zsh"      # Zsh plugins (after completions)
 source "$ZSH_CONFIG_DIR/integrations.zsh" # External tool integrations
 
+command -v fastfetch >/dev/null 2>&1 && fastfetch
+
 # ===============================================================================
 # LOCAL CUSTOMIZATIONS
 # ===============================================================================

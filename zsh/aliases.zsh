@@ -67,6 +67,7 @@ alias ports='netstat -tulanp'
 alias brave='brave --ozone-platform=wayland --enable-features=UseOzonePlatform --password-store=basic --profile-directory="Default"'
 
 # ======= Utilities =======
+alias fastfetch='command fastfetch --config "$HOME/.config/fastfetch/config.jsonc"'
 alias reload='source ~/.zshrc'
 alias zshconfig='${EDITOR:-nvim} ~/.zshrc'
 alias ohmyzsh='${EDITOR:-nvim} ~/.oh-my-zsh'

@@ -35,7 +35,7 @@ check_system() {
 check_dependencies() {
     local missing=()
     local command
-    for command in hyprland kitty waybar wofi mako zsh starship nvim; do
+    for command in hyprland kitty waybar wofi mako zsh starship nvim fastfetch; do
         command -v "$command" >/dev/null 2>&1 || missing+=("$command")
     done
 
@@ -212,7 +212,7 @@ if [[ "$response" =~ ^([yY])$ ]]; then
     if command -v pacman &> /dev/null; then
         log_info "Installing core components..."
         sudo pacman -S \
-            hyprland hyprpicker kitty waybar wofi mako awww \
+            hyprland hyprpicker kitty waybar wofi mako awww fastfetch \
             ttf-jetbrains-mono-nerd zsh starship eza bat fzf yazi \
             neovim thunar imv zathura zathura-pdf-mupdf \
             spotify-launcher discord udiskie playerctl \
@@ -287,6 +287,17 @@ done
 if [ -f "$DOTFILES_DIR/imv/config" ]; then
     mkdir -p "$CONFIG_DIR/imv"
     create_symlink "$CONFIG_DIR/imv/config" "$DOTFILES_DIR/imv/config"
+fi
+
+# Link fastfetch config
+if [ -d "$DOTFILES_DIR/fastfetch" ]; then
+    mkdir -p "$CONFIG_DIR/fastfetch"
+    for file in "$DOTFILES_DIR/fastfetch"/*; do
+        if [ -f "$file" ]; then
+            filename=$(basename "$file")
+            create_symlink "$CONFIG_DIR/fastfetch/$filename" "$file"
+        fi
+    done
 fi
 
 # Link kitty configs
