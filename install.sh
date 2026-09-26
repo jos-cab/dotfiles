@@ -32,6 +32,19 @@ check_system() {
     fi
 }
 
+check_dependencies() {
+    local missing=()
+    local command
+    for command in hyprland kitty waybar wofi mako zsh starship nvim; do
+        command -v "$command" >/dev/null 2>&1 || missing+=("$command")
+    done
+
+    if [ "${#missing[@]}" -gt 0 ]; then
+        log_warn "Required commands missing: ${missing[*]}"
+        log_warn "Choose dependency installation or install them manually before using this config."
+    fi
+}
+
 # Global variable to track if user wants backups
 DO_BACKUPS=false
 
@@ -92,6 +105,11 @@ configure_ananicy() {
 
     if ! command -v ananicy-cpp &> /dev/null; then
         log_warn "ananicy-cpp is not installed. Skipping system ananicy configuration."
+        return
+    fi
+
+    if ! sudo -n true 2>/dev/null; then
+        log_warn "Passwordless sudo unavailable. Skipping system ananicy configuration."
         return
     fi
 
@@ -221,6 +239,8 @@ if [[ "$response" =~ ^([yY])$ ]]; then
         log_error "Package manager not found. Please install dependencies manually."
     fi
 fi
+
+check_dependencies
 
 # Link ananicy configs
 if [ -d "$DOTFILES_DIR/ananicy" ]; then
@@ -355,6 +375,12 @@ fi
 if [ -f "$DOTFILES_DIR/zathura/zathurarc" ]; then
     mkdir -p "$CONFIG_DIR/zathura"
     create_symlink "$CONFIG_DIR/zathura/zathurarc" "$DOTFILES_DIR/zathura/zathurarc"
+fi
+
+# Install theme selector
+if [ -x "$DOTFILES_DIR/themes/apply" ]; then
+    mkdir -p "$HOME/.local/bin"
+    create_symlink "$HOME/.local/bin/dotfiles-theme" "$DOTFILES_DIR/themes/apply"
 fi
 
 # Link zsh configs
