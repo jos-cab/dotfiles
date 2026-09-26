@@ -70,7 +70,18 @@ is written in **Lua** and split into modules under `hyprland/`.
 -   Check the status of the PipeWire user services
 -   Offer to set zsh as your default shell
 
-All prompts use single-key responses for a smoother experience.
+    All prompts use single-key responses for a smoother experience.
+
+3. Configure local secrets if using 9Router:
+
+    ```bash
+    cp ~/.config/hypr/local.lua.example ~/.config/hypr/local.lua
+    chmod 600 ~/.config/hypr/local.lua
+    $EDITOR ~/.config/hypr/local.lua
+    ```
+
+    Keep `local.lua` outside Git.
+
 
 > ⚠️ By default, the script will ask if you want to backup existing configuration files.
 > If you choose to backup, files will be saved as `<filename>.bak` (or `<filename>.bak.1`, `<filename>.bak.2`, etc. if backups already exist) in the same directory.
@@ -126,6 +137,8 @@ All prompts use single-key responses for a smoother experience.
 | `Super + Shift + Q` | Exit Hyprland |
 | `Super + H/J/K/L` | Focus left/down/up/right |
 | `Super + Shift + H/J/K/L` | Move window |
+| `Super + '` | Show/hide the special workspace (`magic`) |
+| `Super + Shift + '` | Move the active window to the special workspace |
 | `Super + 1..0` | Switch workspace 1..10 |
 | `Super + Shift + 1..0` | Move window to workspace |
 | `Super + U` | System update menu |
