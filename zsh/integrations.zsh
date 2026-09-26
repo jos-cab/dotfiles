@@ -47,12 +47,6 @@ if command -v delta >/dev/null 2>&1; then
     export GIT_PAGER="delta"
 fi
 
-# ======= Ripgrep Integration =======
-# Ripgrep configuration
-if command -v rg >/dev/null 2>&1; then
-    export RIPGREP_CONFIG_PATH="$HOME/.config/ripgrep/config"
-fi
-
 # ======= Node.js Integration =======
 # NVM integration (if available)
 if [ -s "$HOME/.nvm/nvm.sh" ]; then

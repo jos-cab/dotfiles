@@ -24,7 +24,8 @@
 local hyprDir = os.getenv("HOME") .. "/.config/hypr"
 package.path = hyprDir .. "/?.lua;" .. hyprDir .. "/?/init.lua;" .. package.path
 -- Also support dotfiles location directly (useful for standalone luac checks)
-local dotfilesDir = os.getenv("HOME") .. "/dotfiles/hyprland"
+local dotfilesRoot = os.getenv("DOTFILES_DIR") or (os.getenv("HOME") .. "/dotfiles")
+local dotfilesDir = dotfilesRoot .. "/hyprland"
 package.path = dotfilesDir .. "/?.lua;" .. package.path
 
 -- Source all configuration files - order mirrors original hyprland.conf source order

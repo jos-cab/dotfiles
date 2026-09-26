@@ -119,8 +119,7 @@ export FZF_DEFAULT_OPTS="
 export BAT_THEME="Catppuccin Mocha"
 
 # Qt Platform Theme
-export QT_QPA_PLATFORMTHEME=qt5ct
-export QT_STYLE_OVERRIDE=kvantum
+export QT_QPA_PLATFORMTHEME=qt6ct
 
 # Ensure Qt apps use dark theme
 export QT_AUTO_SCREEN_SCALE_FACTOR=1
