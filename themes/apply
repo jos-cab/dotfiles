@@ -12,6 +12,8 @@ THEME_FILES=(
     "$ROOT_DIR/wofi/style.css" "$ROOT_DIR/mako/config" "$ROOT_DIR/zathura/zathurarc"
     "$ROOT_DIR/hyprland/scripts/capture-selection"
     "$ROOT_DIR/waybar/scripts/media-popup"
+    "$ROOT_DIR/nvim/lua/plugins/colorscheme.lua"
+    "$ROOT_DIR/imv/config"
 )
 
 spicetify_colors="$HOME/.config/spicetify/Themes/centralized/color.ini"
@@ -28,6 +30,8 @@ templates=(
     "$ROOT_DIR/themes/templates/zathura_zathurarc"
     "$ROOT_DIR/themes/templates/capture-selection"
     "$ROOT_DIR/themes/templates/media-popup"
+    "$ROOT_DIR/themes/templates/nvim_colorscheme.lua"
+    "$ROOT_DIR/themes/templates/imv_config"
 )
 old=(1e1e2e 181825 11111b 313244 45475a 585b70 cdd6f4 a6adc8 bac2de 6c7086 f5e0dc f2cdcd f5c2e7 cba6f7 f38ba8 eba0ac fab387 f9e2af a6e3a1 94e2d5 89dceb 74c7ec 89b4fa b4befe)
 theme_name=$(basename "$THEME_FILE" .conf)
@@ -44,6 +48,20 @@ for i in "${!THEME_FILES[@]}"; do
         [ -n "${new[$color]:-}" ] || continue
         perl -0pi -e "s/rgba\(${old[$color]}/rgba(${new[$color]}/g; s/#${old[$color]}/#${new[$color]}/g" "$generated"
     done
+    if [ "$file" = "$ROOT_DIR/imv/config" ]; then
+        perl -0pi -e "s/__BASE__/${new[0]}/g; s/__SURFACE0__/${new[3]}/g; s/__TEXT__/${new[6]}/g" "$generated"
+    fi
+    if [ "$file" = "$ROOT_DIR/nvim/lua/plugins/colorscheme.lua" ]; then
+        nvim_flavour=mocha
+        [ "$theme_name" = "catppuccin-macchiato" ] &&         nvim_flavour=macchiato
+        perl -0pi -e "s/__NVIM_FLAVOUR__/$nvim_flavour/g" "$generated"
+        nvim_keys=(base mantle crust surface0 surface1 surface2 text subtext0 subtext1 overlay0 rosewater flamingo pink mauve red maroon peach yellow green teal sky sapphire blue lavender)
+        for nvim_index in "${!nvim_keys[@]}"; do
+            nvim_key="${nvim_keys[$nvim_index]}"
+            nvim_value="${new[$nvim_index]}"
+            perl -0pi -e "s/__${nvim_key^^}__/$nvim_value/g" "$generated"
+        done
+    fi
     if [ "$file" = "$ROOT_DIR/waybar/dock.css" ]; then
         perl -0pi -e "s/rgba\(30, 30, 46, 0\.60\)/rgba($base_rgb, 0.60)/g" "$generated"
     fi
@@ -64,6 +82,11 @@ bd_new=(6 6 6 10 10 4 3 1 0 2)
     perl -0pi -e "s/#bf616a/#${new[14]}/gi; s/#b48ead/#${new[13]}/gi; s/#a3be8c/#${new[18]}/gi; s/#81a1c1/#${new[22]}/gi; s/#88c0d0/#${new[20]}/gi; s/#ebcb8b/#${new[17]}/gi; s/#d08770/#${new[16]}/gi; s/#b38add/#${new[13]}/gi" "$generated"
     mkdir -p "$(dirname "$betterdiscord_theme")"
     mv "$generated" "$betterdiscord_theme"
+    betterdiscord_themes="$HOME/.config/BetterDiscord/data/stable/themes.json"
+    if command -v jq >/dev/null 2>&1 && [ -f "$betterdiscord_themes" ]; then
+        temporary=$(mktemp)
+        jq '.midnight = true' "$betterdiscord_themes" > "$temporary" && mv "$temporary" "$betterdiscord_themes"
+    fi
 fi
 
 if command -v spicetify >/dev/null 2>&1 && [ -d "$HOME/.config/spicetify" ]; then

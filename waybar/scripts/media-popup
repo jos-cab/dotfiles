@@ -59,7 +59,7 @@ class PlayerPopup(Gtk.Window):
 
         css = Gtk.CssProvider()
         css.load_from_data(
-            b"window { background: #1e1e2e; color: #cdd6f4; border: 2px solid #cba6f7; border-radius: 14px; } button { background: #313244; color: #cdd6f4; border-radius: 8px; } scale trough { background: #45475a; min-height: 6px; } scale highlight { background: #cba6f7; } scale slider { background: #cdd6f4; border: 0; }"
+            b"window { background: #272a2e; color: #d8dee0; border: 2px solid #81757d; border-radius: 14px; } button { background: #30363b; color: #d8dee0; border-radius: 8px; } scale trough { background: #39464e; min-height: 6px; } scale highlight { background: #81757d; } scale slider { background: #d8dee0; border: 0; }"
         )
         Gtk.StyleContext.add_provider_for_screen(
             Gtk.Window.get_screen(self), css, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION

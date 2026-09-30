@@ -1,8 +1,8 @@
 [options]
-background = 272a2e
-overlay_background_color = 30363b
+background = __BASE__
+overlay_background_color = __SURFACE0__
 overlay_background_alpha = c3
-overlay_text_color = d8dee0
+overlay_text_color = __TEXT__
 overlay_text_alpha = ff
 fullscreen = false
 width = 1280

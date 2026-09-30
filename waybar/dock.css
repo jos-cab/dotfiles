@@ -1,7 +1,7 @@
 window#waybar.dock {
   background: transparent;
-  color: #cdd6f4;
-  font-family: 'JetBrainsMono Nerd Font', 'Hack Nerd Font', monospace;
+  color: #d8dee0;
+  font-family: 'JetBrainsMono Nerd Font';
   font-size: 18px;
   font-weight: bold;
 }
@@ -11,8 +11,8 @@ window#waybar.dock > box {
 }
 
 window#waybar.dock .modules-center {
-  background: rgba(30, 30, 46, 0.60);
-  border: 1px solid #313244;
+  background: rgba(39, 42, 46, 0.60);
+  border: 1px solid #30363b;
   border-radius: 18px;
   padding: 6px 10px;
 }
@@ -27,29 +27,29 @@ window#waybar.dock .modules-center {
   margin: 0 3px;
   padding: 0 8px;
   border-radius: 12px;
-  color: #cdd6f4;
-  background: #181825;
+  color: #d8dee0;
+  background: #23272b;
   transition: all 0.2s ease-in-out;
 }
 
 #custom-terminal {
-  color: #a6e3a1;
+  color: #66766d;
 }
 
 #custom-files {
-  color: #f9e2af;
+  color: #a69d7d;
 }
 
 #custom-browser {
-  color: #89dceb;
+  color: #6b7c82;
 }
 
 #custom-discord {
-  color: #cba6f7;
+  color: #81757d;
 }
 
 #custom-spotify {
-  color: #a6e3a1;
+  color: #66766d;
 }
 
 #custom-terminal:hover,
@@ -57,6 +57,6 @@ window#waybar.dock .modules-center {
 #custom-browser:hover,
 #custom-discord:hover,
 #custom-spotify:hover {
-  background: #313244;
+  background: #30363b;
   color: #f5e0e6;
 }

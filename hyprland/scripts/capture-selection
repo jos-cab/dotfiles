@@ -21,7 +21,7 @@ require_command() {
 }
 
 capture_selection() {
-    SLURP_ARGS='-b #1e1e2e99 -s #00000000 -c #cba6f7ff -w 2' \
+    SLURP_ARGS='-b #272a2e99 -s #00000000 -c #81757dff -w 2' \
         grimblast --freeze save area "$IMAGE" || {
         notify "Failed to capture selection"
         exit 1

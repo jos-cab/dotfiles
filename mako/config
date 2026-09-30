@@ -14,9 +14,9 @@ default-timeout=5000
 
 # Style configuration
 # Catppuccin Mocha Theme
-background-color=#1e1e2eFF
-text-color=#cdd6f4FF
-border-color=#cba6f7ee
+background-color=#272a2eFF
+text-color=#d8dee0FF
+border-color=#81757dee
 border-size=2
 border-radius=12
 padding=10

@@ -1,7 +1,7 @@
 window#waybar.dock {
   background: transparent;
   color: #cdd6f4;
-  font-family: 'JetBrainsMono Nerd Font', 'Hack Nerd Font', monospace;
+  font-family: 'JetBrainsMono Nerd Font';
   font-size: 18px;
   font-weight: bold;
 }

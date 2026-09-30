@@ -1,42 +1,50 @@
 return {
-  -- Add Catppuccin colorscheme
   {
     "catppuccin/nvim",
     name = "catppuccin",
     priority = 1000,
     opts = {
-      flavour = "mocha", -- latte, frappe, macchiato, mocha
-      background = { -- :h background
+      flavour = "mocha",
+      background = {
         light = "latte",
         dark = "mocha",
       },
-      transparent_background = false, -- disables setting the background color.
-      show_end_of_buffer = false, -- shows the '~' characters after the end of buffers
-      term_colors = false, -- sets terminal colors (e.g. `g:terminal_color_0`)
+      transparent_background = false,
+      show_end_of_buffer = false,
+      term_colors = false,
       dim_inactive = {
         enabled = true,
         shade = "dark",
-        percentage = 0.15, -- percentage of the shade to apply to the inactive window
+        percentage = 0.15,
       },
-      no_italic = false, -- Force no italic
-      no_bold = false, -- Force no bold
-      no_underline = false, -- Force no underline
-      styles = { -- Handles the styles of general hi groups (see `:h highlight-args`):
-        comments = { "italic" }, -- Change the style of comments
-        conditionals = { "italic" },
-        loops = {},
-        functions = {},
-        keywords = {},
-        strings = {},
-        variables = {},
-        numbers = {},
-        booleans = {},
-        properties = {},
-        types = {},
-        operators = {},
+      color_overrides = {
+        mocha = {
+          base = "#272a2e",
+          mantle = "#23272b",
+          crust = "#1e2226",
+          surface0 = "#30363b",
+          surface1 = "#39464e",
+          surface2 = "#4b565d",
+          text = "#d8dee0",
+          subtext0 = "#b9c1c5",
+          subtext1 = "#c8ced1",
+          overlay0 = "#626d73",
+          rosewater = "#aaa7a0",
+          flamingo = "#a59a8b",
+          pink = "#81757d",
+          mauve = "#81757d",
+          red = "#9b6266",
+          maroon = "#89575b",
+          peach = "#927d70",
+          yellow = "#a69d7d",
+          green = "#66766d",
+          teal = "#52645d",
+          sky = "#6b7c82",
+          sapphire = "#566871",
+          blue = "#62727a",
+          lavender = "#81757d",
+        },
       },
-      color_overrides = {},
-      custom_highlights = {},
       integrations = {
         cmp = true,
         gitsigns = true,
@@ -47,12 +55,9 @@ return {
           enabled = true,
           indentscope_color = "",
         },
-        -- For more plugins integrations please scroll down (https://github.com/catppuccin/nvim#integrations)
       },
     },
   },
-
-  -- Configure LazyVim to load catppuccin
   {
     "LazyVim/LazyVim",
     opts = {

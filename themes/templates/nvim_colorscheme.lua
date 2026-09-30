@@ -1,0 +1,67 @@
+return {
+  {
+    "catppuccin/nvim",
+    name = "catppuccin",
+    priority = 1000,
+    opts = {
+      flavour = "__NVIM_FLAVOUR__",
+      background = {
+        light = "latte",
+        dark = "__NVIM_FLAVOUR__",
+      },
+      transparent_background = false,
+      show_end_of_buffer = false,
+      term_colors = false,
+      dim_inactive = {
+        enabled = true,
+        shade = "dark",
+        percentage = 0.15,
+      },
+      color_overrides = {
+        mocha = {
+          base = "#__BASE__",
+          mantle = "#__MANTLE__",
+          crust = "#__CRUST__",
+          surface0 = "#__SURFACE0__",
+          surface1 = "#__SURFACE1__",
+          surface2 = "#__SURFACE2__",
+          text = "#__TEXT__",
+          subtext0 = "#__SUBTEXT0__",
+          subtext1 = "#__SUBTEXT1__",
+          overlay0 = "#__OVERLAY0__",
+          rosewater = "#__ROSEWATER__",
+          flamingo = "#__FLAMINGO__",
+          pink = "#__PINK__",
+          mauve = "#__MAUVE__",
+          red = "#__RED__",
+          maroon = "#__MAROON__",
+          peach = "#__PEACH__",
+          yellow = "#__YELLOW__",
+          green = "#__GREEN__",
+          teal = "#__TEAL__",
+          sky = "#__SKY__",
+          sapphire = "#__SAPPHIRE__",
+          blue = "#__BLUE__",
+          lavender = "#__LAVENDER__",
+        },
+      },
+      integrations = {
+        cmp = true,
+        gitsigns = true,
+        nvimtree = true,
+        treesitter = true,
+        notify = false,
+        mini = {
+          enabled = true,
+          indentscope_color = "",
+        },
+      },
+    },
+  },
+  {
+    "LazyVim/LazyVim",
+    opts = {
+      colorscheme = "catppuccin-__NVIM_FLAVOUR__",
+    },
+  },
+}
