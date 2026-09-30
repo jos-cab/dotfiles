@@ -10,20 +10,29 @@ THEME_FILES=(
     "$ROOT_DIR/kitty/window.conf" "$ROOT_DIR/kitty/theme.conf"
     "$ROOT_DIR/waybar/style.css" "$ROOT_DIR/waybar/dock.css"
     "$ROOT_DIR/wofi/style.css" "$ROOT_DIR/mako/config" "$ROOT_DIR/zathura/zathurarc"
+    "$ROOT_DIR/hyprland/scripts/capture-selection"
+    "$ROOT_DIR/waybar/scripts/media-popup"
 )
+
+spicetify_colors="$HOME/.config/spicetify/Themes/centralized/color.ini"
+spicetify_template="$ROOT_DIR/themes/templates/spicetify_color.ini"
 templates=(
-    "$ROOT_DIR/themes/templates/hyprland__appearance.lua"
-    "$ROOT_DIR/themes/templates/kitty__colors.conf"
-    "$ROOT_DIR/themes/templates/kitty__window.conf"
-    "$ROOT_DIR/themes/templates/kitty__theme.conf"
-    "$ROOT_DIR/themes/templates/waybar__style.css"
-    "$ROOT_DIR/themes/templates/waybar__dock.css"
-    "$ROOT_DIR/themes/templates/wofi__style.css"
-    "$ROOT_DIR/themes/templates/mako__config"
-    "$ROOT_DIR/themes/templates/zathura__zathurarc"
+    "$ROOT_DIR/themes/templates/hyprland_appearance.lua"
+    "$ROOT_DIR/themes/templates/kitty_colors.conf"
+    "$ROOT_DIR/themes/templates/kitty_window.conf"
+    "$ROOT_DIR/themes/templates/kitty_theme.conf"
+    "$ROOT_DIR/themes/templates/waybar_style.css"
+    "$ROOT_DIR/themes/templates/waybar_dock.css"
+    "$ROOT_DIR/themes/templates/wofi_style.css"
+    "$ROOT_DIR/themes/templates/mako_config"
+    "$ROOT_DIR/themes/templates/zathura_zathurarc"
+    "$ROOT_DIR/themes/templates/capture-selection"
+    "$ROOT_DIR/themes/templates/media-popup"
 )
 old=(1e1e2e 181825 11111b 313244 45475a 585b70 cdd6f4 a6adc8 bac2de 6c7086 f5e0dc f2cdcd f5c2e7 cba6f7 f38ba8 eba0ac fab387 f9e2af a6e3a1 94e2d5 89dceb 74c7ec 89b4fa b4befe)
+theme_name=$(basename "$THEME_FILE" .conf)
 mapfile -t new < <(awk -F '=' '{value=$2; gsub(/[[:space:]#]/, "", value); print tolower(value)}' "$THEME_FILE")
+base_rgb=$(printf '%d, %d, %d' "0x${new[0]:0:2}" "0x${new[0]:2:2}" "0x${new[0]:4:2}")
 
 for i in "${!THEME_FILES[@]}"; do
     file="${THEME_FILES[$i]}"
@@ -35,10 +44,151 @@ for i in "${!THEME_FILES[@]}"; do
         [ -n "${new[$color]:-}" ] || continue
         perl -0pi -e "s/rgba\(${old[$color]}/rgba(${new[$color]}/g; s/#${old[$color]}/#${new[$color]}/g" "$generated"
     done
+    if [ "$file" = "$ROOT_DIR/waybar/dock.css" ]; then
+        perl -0pi -e "s/rgba\(30, 30, 46, 0\.60\)/rgba($base_rgb, 0.60)/g" "$generated"
+    fi
     mv "$generated" "$file"
+    [ "$file" = "$ROOT_DIR/hyprland/scripts/capture-selection" ] && chmod +x "$file"
 done
 
+betterdiscord_theme="$HOME/.config/BetterDiscord/themes/midnight.theme.css"
+if [ -f "$betterdiscord_theme" ]; then
+    generated=$(mktemp)
+    cp "$betterdiscord_theme" "$generated"
+    for color in "${!old[@]}"; do
+        [ -n "${new[$color]:-}" ] || continue
+        perl -0pi -e "s/#${old[$color]}/#${new[$color]}/gi" "$generated"
+    done
+    mv "$generated" "$betterdiscord_theme"
+fi
+
+if command -v spicetify >/dev/null 2>&1 && [ -d "$HOME/.config/spicetify" ]; then
+    mkdir -p "$(dirname "$spicetify_colors")"
+    generated=$(mktemp)
+    cp "$spicetify_template" "$generated"
+    for color in "${!old[@]}"; do
+        [ -n "${new[$color]:-}" ] || continue
+        perl -0pi -e "s/#${old[$color]}/#${new[$color]}/g" "$generated"
+    done
+    mv "$generated" "$spicetify_colors"
+    spicetify config current_theme centralized >/dev/null
+    spicetify config color_scheme Base >/dev/null
+    spicetify apply >/dev/null
+fi
+
+gtk_theme="Dotfiles-$theme_name"
+gtk_source_theme=generated
+qt_style=Fusion
+vscode_theme="Catppuccin Mocha"
+gtk_theme_dir="$HOME/.local/share/themes/$gtk_theme"
+gtk_base_dir=""
+for candidate in "$HOME/.themes/Catppuccin-Dark" "$HOME/.local/share/themes/Catppuccin-Dark" /usr/share/themes/Catppuccin-Dark; do
+    [ -d "$candidate" ] && gtk_base_dir="$candidate" && break
+done
+rm -rf "$gtk_theme_dir"
+if [ -n "$gtk_base_dir" ]; then
+    mkdir -p "$(dirname "$gtk_theme_dir")"
+    cp -a "$gtk_base_dir" "$gtk_theme_dir"
+else
+    mkdir -p "$gtk_theme_dir/gtk-3.0" "$gtk_theme_dir/gtk-4.0"
+fi
+mkdir -p "$HOME/.themes" "$HOME/.config/qt5ct/colors" "$HOME/.config/qt6ct/colors" "$HOME/.local/share/qt5ct/colors" "$HOME/.local/share/qt6ct/colors"
+cat > "$gtk_theme_dir/index.theme" <<EOF
+[Desktop Entry]
+Type=X-GNOME-Metatheme
+Name=$gtk_theme
+Comment=Generated dotfiles theme
+[X-GNOME-Metatheme]
+GtkTheme=$gtk_theme
+IconTheme=Catppuccin-Dark
+CursorTheme=Qogir-cursors
+EOF
+for gtk_version in gtk-3.0 gtk-4.0; do
+    for gtk_css in "$gtk_theme_dir/$gtk_version/gtk.css" "$gtk_theme_dir/$gtk_version/gtk-dark.css"; do
+        [ -f "$gtk_css" ] || continue
+        for color in "${!old[@]}"; do
+            [ -n "${new[$color]:-}" ] || continue
+            perl -0pi -e "s/#${old[$color]}/#${new[$color]}/gi" "$gtk_css"
+        done
+    done
+done
+for gtk_version in gtk-3.0 gtk-4.0; do
+    for gtk_css in "$gtk_theme_dir/$gtk_version/gtk.css" "$gtk_theme_dir/$gtk_version/gtk-dark.css"; do
+        [ -f "$gtk_css" ] || continue
+        cat >> "$gtk_css" <<EOF
+.thunar .standard-view.frame widget.view:selected,
+.thunar .view:selected,
+.view:selected,
+treeview.view:selected,
+widget.view:selected,
+.view rubberband,
+rubberband,
+.rubberband,
+selection { background-color: alpha(#${new[13]}, 0.22) !important; border-color: alpha(#${new[13]}, 0.22) !important; color: #${new[6]} !important; }
+label, button, checkbutton, radiobutton, menuitem, tooltip, entry, textview { color: #${new[6]}; }
+button:disabled, label:disabled { color: alpha(#${new[6]}, 0.55); }
+EOF
+    done
+done
+ln -sfn "$gtk_theme_dir" "$HOME/.themes/$gtk_theme"
+qt_color_file="$HOME/.config/qt6ct/colors/$theme_name.conf"
+for qt_colors in "$HOME/.config/qt5ct/colors/$theme_name.conf" "$HOME/.config/qt6ct/colors/$theme_name.conf"; do
+    cat > "$qt_colors" <<EOF
+[ColorScheme]
+active_colors=#ff${new[6]}, #ff${new[0]}, #ff${new[3]}, #ff${new[6]}, #ff${new[0]}, #ff${new[6]}, #ff${new[0]}, #ff${new[6]}, #ff${new[0]}, #ff${new[6]}, #ff${new[3]}, #ff${new[13]}, #ff${new[22]}, #ff${new[6]}, #ff${new[0]}, #ff${new[3]}, #ff${new[6]}, #ff${new[0]}, #ff${new[13]}, #ff${new[22]}, #ff${new[6]}
+inactive_colors=#ff${new[6]}, #ff${new[0]}, #ff${new[3]}, #ff${new[6]}, #ff${new[0]}, #ff${new[6]}, #ff${new[0]}, #ff${new[6]}, #ff${new[0]}, #ff${new[6]}, #ff${new[3]}, #ff${new[13]}, #ff${new[22]}, #ff${new[6]}, #ff${new[0]}, #ff${new[3]}, #ff${new[6]}, #ff${new[0]}, #ff${new[13]}, #ff${new[22]}, #ff${new[6]}
+disabled_colors=#ff${new[2]}, #ff${new[0]}, #ff${new[3]}, #ff${new[2]}, #ff${new[0]}, #ff${new[2]}, #ff${new[0]}, #ff${new[2]}, #ff${new[0]}, #ff${new[2]}, #ff${new[3]}, #ff${new[2]}, #ff${new[2]}, #ff${new[2]}, #ff${new[0]}, #ff${new[3]}, #ff${new[2]}, #ff${new[0]}, #ff${new[2]}, #ff${new[2]}, #ff${new[2]}
+EOF
+done
+
+for version in qt5ct qt6ct; do
+    cp "$HOME/.config/$version/colors/$theme_name.conf" "$HOME/.local/share/$version/colors/$theme_name.conf"
+done
+
+for version in gtk-3.0 gtk-4.0; do
+    mkdir -p "$HOME/.config/$version"
+    cat > "$HOME/.config/$version/settings.ini" <<EOF
+[Settings]
+gtk-theme-name=$gtk_theme
+gtk-icon-theme-name=Catppuccin-Dark
+gtk-font-name=JetBrainsMono Nerd Font 10
+gtk-cursor-theme-name=Qogir-cursors
+gtk-cursor-theme-size=24
+gtk-application-prefer-dark-theme=1
+EOF
+done
+
+
+for version in qt5ct qt6ct; do
+    config="$HOME/.config/$version/${version}.conf"
+    [ -f "$config" ] || continue
+    QT_STYLE="$qt_style" QT_COLOR_SCHEME="$theme_name" perl -0pi -e 's/^color_scheme=.*/color_scheme=$ENV{QT_COLOR_SCHEME}/mg; s/^color_scheme_path=.*//mg; s/^custom_palette=.*/custom_palette=true/m; s/^icon_theme=.*/icon_theme=Papirus-Dark/m; s/^style=.*/style=$ENV{QT_STYLE}/m; s/^fixed=.*/fixed="JetBrainsMono Nerd Font Mono,10,-1,5,400,0,0,0,0,0,0,0,0,0,1,Regular"/m; s/^general=.*/general="JetBrainsMono Nerd Font,10,-1,5,400,0,0,0,0,0,0,0,0,0,1,Regular"/m; s/^color_scheme=.*/color_scheme=$ENV{QT_COLOR_SCHEME}/m' "$config"
+    perl -0pi -e 's/(^color_scheme=.*\n)(?=.*^color_scheme=.*\n)/$1/mg; s/(^custom_palette=.*\n)(?=.*^custom_palette=.*\n)/$1/mg; s/^force_raster_widgets=.*/force_raster_widgets=0/m' "$config"
+    if ! grep -q '^color_scheme=' "$config"; then
+        printf '\n[Appearance]\ncolor_scheme=%s\n' "$theme_name" >> "$config"
+    fi
+done
+
+if command -v gsettings >/dev/null 2>&1; then
+    gsettings set org.gnome.desktop.interface color-scheme prefer-dark 2>/dev/null || true
+fi
+
+brave_preferences="$HOME/.config/BraveSoftware/Brave-Browser/Default/Preferences"
+if [ -f "$brave_preferences" ] && command -v jq >/dev/null 2>&1; then
+    temporary=$(mktemp)
+    jq '.browser.theme = ((.browser.theme // {}) + {"is_dark": true})' "$brave_preferences" > "$temporary" && mv "$temporary" "$brave_preferences"
+fi
+
+vscode="$HOME/.config/Code/User/settings.json"
+[ -f "$vscode" ] && perl -0pi -e 's/"workbench\.colorTheme"\s*:\s*"[^"]*"/"workbench.colorTheme": "Catppuccin Mocha"/; s/"workbench\.iconTheme"\s*:\s*"[^"]*"/"workbench.iconTheme": "material-icon-theme"/' "$vscode"
+
 command -v hyprctl >/dev/null 2>&1 && hyprctl reload >/dev/null 2>&1 || true
-command -v pkill >/dev/null 2>&1 && pkill -SIGUSR2 waybar 2>/dev/null || true
+if command -v waybar >/dev/null 2>&1; then
+    pkill -x waybar 2>/dev/null || true
+    waybar >/dev/null 2>&1 &
+    if [ -f "$HOME/.config/waybar/dock.jsonc" ] && [ -f "$HOME/.config/waybar/dock.css" ]; then
+        waybar -c "$HOME/.config/waybar/dock.jsonc" -s "$HOME/.config/waybar/dock.css" >/dev/null 2>&1 &
+    fi
+fi
 command -v makoctl >/dev/null 2>&1 && makoctl reload 2>/dev/null || true
 printf 'Applied theme: %s\n' "$(basename "$THEME_FILE" .conf)"

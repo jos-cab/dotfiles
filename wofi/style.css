@@ -4,7 +4,7 @@
 window {
 	margin: 0px;
 	border-radius: 12px;
-	background-color: #1e1e2e;
+	background-color: #272a2e;
 	font-family: 'JetBrainsMono Nerd Font', 'Hack Nerd Font', monospace;
 	font-size: 13px;
 	font-weight: bold;
@@ -29,17 +29,17 @@ window {
 #input {
 	margin: 0px 0px 6px 0px;
 	padding: 6px 10px;
-	border: 2px solid #313244;
+	border: 2px solid #30363b;
 	border-radius: 8px;
-	background-color: #181825;
-	color: #cdd6f4;
+	background-color: #23272b;
+	color: #d8dee0;
 	font-size: 13px;
 	font-weight: bold;
 }
 
 #input:focus {
-	border-color: #cba6f7;
-	background-color: #1e1e2e;
+	border-color: #81757d;
+	background-color: #272a2e;
 	outline: none;
 }
 
@@ -66,18 +66,18 @@ window {
 	border: none;
 	border-radius: 6px;
 	background-color: transparent;
-	color: #cdd6f4;
+	color: #d8dee0;
 	font-size: 13px;
 }
 
 #entry:hover {
-	background-color: #313244;
-	color: #cdd6f4;
+	background-color: #30363b;
+	color: #d8dee0;
 }
 
 #entry:selected {
-	background-color: #cba6f7;
-	color: #1e1e2e;
+	background-color: #81757d;
+	color: #272a2e;
 	font-weight: bold;
 }
 
@@ -104,7 +104,7 @@ window {
 	padding: 16px;
 	border: none;
 	background-color: transparent;
-	color: #6c7086;
+	color: #626d73;
 	font-size: 13px;
 	text-align: center;
 }
@@ -116,18 +116,18 @@ scrollbar {
 }
 
 scrollbar slider {
-	background-color: #313244;
+	background-color: #30363b;
 	border: none;
 	border-radius: 4px;
 	min-width: 6px;
 }
 
 scrollbar slider:hover {
-	background-color: #45475a;
+	background-color: #39464e;
 }
 
 scrollbar slider:active {
-	background-color: #cba6f7;
+	background-color: #81757d;
 }
 
 /* Remove outlines and default borders */

@@ -2,6 +2,10 @@
 
 Arch Linux + Hyprland setup
 
+## Preview
+
+![Hyprland desktop](assets/desktop/hyprland-desktop.png)
+
 ## Overview
 
 Personal configuration files (dotfiles) for an **Arch Linux** system running the
@@ -121,7 +125,7 @@ is written in **Lua** and split into modules under `hyprland/`.
     dotfiles-theme themes/tokyo-night.conf
     ```
 
--   Neovim, GTK and Qt themes remain separate: they require their own installed theme packages/plugins.
+-   `theme` genera y selecciona temas GTK 3/4 y Qt5/Qt6 desde la paleta local, sin depender de `~/gtk` ni `~/qt5ct`. Run `~/dotfiles/theme <name>` (for example, `~/dotfiles/theme tokyo-night`). Restart already-open applications to reload their theme.
 
 ## Keybindings
 

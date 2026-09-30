@@ -25,49 +25,49 @@ set recolor-reverse-video true
 # Based on colors from kitty config and hyprland appearance
 
 # Background and foreground
-set default-bg "#1e1e2e"  # Base
-set default-fg "#cdd6f4"  # Text
+set default-bg "#272a2e"  # Base
+set default-fg "#d8dee0"  # Text
 
 # Recolor (dark mode) - optimized for Catppuccin Mocha
-set recolor-lightcolor "#1e1e2e"  # Base (background) - darker for better contrast
-set recolor-darkcolor "#cdd6f4"   # Rosewater (foreground) - warmer white for easier reading
+set recolor-lightcolor "#272a2e"  # Base (background) - darker for better contrast
+set recolor-darkcolor "#d8dee0"   # Rosewater (foreground) - warmer white for easier reading
 
 # Selection colors
-set highlight-color "#585b70"     # Rosewater
-set highlight-active-color "#f5e0dc"  # Rosewater
-set highlight-fg "#f5e0dc"    # Rosewater
+set highlight-color "#4b565d"     # Rosewater
+set highlight-active-color "#aaa7a0"  # Rosewater
+set highlight-fg "#aaa7a0"    # Rosewater
 
 # Status bar colors
-set statusbar-fg "#cdd6f4"        # Text
-set statusbar-bg "#313244"        # Surface0
+set statusbar-fg "#d8dee0"        # Text
+set statusbar-bg "#30363b"        # Surface0
 
 # Notification/error colors
-set notification-bg "#f38ba8"     # Red
-set notification-fg "#1e1e2e"     # Base
-set notification-error-bg "#f38ba8"  # Red
-set notification-error-fg "#1e1e2e"  # Base
-set notification-warning-bg "#f9e2af"  # Yellow
-set notification-warning-fg "#1e1e2e"  # Base
+set notification-bg "#9b6266"     # Red
+set notification-fg "#272a2e"     # Base
+set notification-error-bg "#9b6266"  # Red
+set notification-error-fg "#272a2e"  # Base
+set notification-warning-bg "#a69d7d"  # Yellow
+set notification-warning-fg "#272a2e"  # Base
 
 # Input bar colors
-set inputbar-bg "#313244"         # Surface0
-set inputbar-fg "#cdd6f4"         # Text
+set inputbar-bg "#30363b"         # Surface0
+set inputbar-fg "#d8dee0"         # Text
 
 # Completion colors
-set completion-bg "#45475a"       # Surface1
-set completion-fg "#cdd6f4"       # Text
-set completion-highlight-bg "#89b4fa"  # Blue
-set completion-highlight-fg "#1e1e2e"  # Base
+set completion-bg "#39464e"       # Surface1
+set completion-fg "#d8dee0"       # Text
+set completion-highlight-bg "#62727a"  # Blue
+set completion-highlight-fg "#272a2e"  # Base
 
 # Index mode colors
-set index-bg "#1e1e2e"            # Base
-set index-fg "#cdd6f4"            # Text
-set index-active-bg "#89b4fa"     # Blue
-set index-active-fg "#1e1e2e"     # Base
+set index-bg "#272a2e"            # Base
+set index-fg "#d8dee0"            # Text
+set index-active-bg "#62727a"     # Blue
+set index-active-fg "#272a2e"     # Base
 
 # Render colors (for transparency effects)
-set render-loading-bg "#1e1e2e"   # Base
-set render-loading-fg "#cdd6f4"   # Text
+set render-loading-bg "#272a2e"   # Base
+set render-loading-fg "#d8dee0"   # Text
 #Additional settings for better UX
 set scroll-step 50
 set scroll-hstep -1

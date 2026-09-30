@@ -16,6 +16,7 @@
   ],
   "modules-right": [
     "tray",
+    "mpris",
     "pulseaudio",
     "cpu",
     "memory",
@@ -63,6 +64,22 @@
     "critical-threshold": 80,
     // "format-critical": "{temperatureC}°C {icon}",
     "format": "{temperatureC}°C {icon}"
+  },
+  "mpris": {
+    "format": "{player_icon} {dynamic}",
+    "format-paused": "{player_icon} {dynamic}",
+    "player-icons": {
+      "default": "▶",
+      "spotify": "󰓇",
+      "youtube": "󰗃"
+    },
+    "dynamic-order": ["artist", "title"],
+    "dynamic-importance-order": ["title", "artist"],
+    "dynamic-len": 30,
+    "tooltip-format": "{player}\n{artist} — {title}",
+    "on-click": "~/.config/waybar/scripts/media-popup-toggle",
+    "on-scroll-up": "playerctl volume 0.05+",
+    "on-scroll-down": "playerctl volume 0.05-"
   },
   "pulseaudio": {
     // "scroll-step": 1, // %, can be a float

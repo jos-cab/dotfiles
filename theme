@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+if [ "$#" -eq 0 ]; then
+    printf 'Usage: %s <theme|path/to/theme.conf>\n\nAvailable themes:\n' "$0"
+    printf '  %s\n' "$ROOT_DIR"/themes/*.conf | sed "s#${ROOT_DIR}/themes/##; s#\.conf##"
+    exit 0
+fi
+
+case "$1" in
+    -h|--help)
+        printf 'Usage: %s <theme|path/to/theme.conf>\n' "$0"
+        exit 0
+        ;;
+    */*|*.conf)
+        theme_file="$1"
+        ;;
+    *)
+        theme_file="$ROOT_DIR/themes/$1.conf"
+        ;;
+esac
+
+exec "$ROOT_DIR/themes/apply" "$theme_file"

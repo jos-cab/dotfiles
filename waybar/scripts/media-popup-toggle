@@ -1,0 +1,13 @@
+#!/bin/sh
+
+pidfile="${XDG_RUNTIME_DIR:-/tmp}/waybar-media-popup.pid"
+popup="$HOME/.config/waybar/scripts/media-popup"
+
+if [ -f "$pidfile" ] && kill -0 "$(cat "$pidfile")" 2>/dev/null; then
+    kill "$(cat "$pidfile")"
+    rm -f "$pidfile"
+else
+    rm -f "$pidfile"
+    "$popup" >/dev/null 2>&1 &
+    printf '%s\n' "$!" > "$pidfile"
+fi

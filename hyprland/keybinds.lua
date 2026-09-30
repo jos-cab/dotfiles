@@ -19,11 +19,12 @@ hl.bind(mainMod .. " + SHIFT + V",    hl.dsp.exec_cmd("~/.config/hypr/scripts/cl
 
 -- Screenshot
 hl.bind("Print",                      hl.dsp.exec_cmd("~/.config/hypr/scripts/capture-selection screenshot"))
+hl.bind("SHIFT + Print",                hl.dsp.exec_cmd("~/.config/hypr/scripts/capture-selection save"))
 hl.bind(mainMod .. " + SHIFT + O",    hl.dsp.exec_cmd("~/.config/hypr/scripts/capture-selection ocr"))
 hl.bind(mainMod .. " + SHIFT + R",    hl.dsp.exec_cmd("~/.config/hypr/scripts/capture-selection qr"))
 
 -- Waybar
-hl.bind(mainMod .. " + W",            hl.dsp.exec_cmd("killall -SIGUSR1 waybar"))
+hl.bind(mainMod .. " + W",            hl.dsp.exec_cmd("sh -c 'pgrep -f \"waybar.*dock.jsonc\" >/dev/null && pkill -SIGUSR1 -f \"waybar.*dock.jsonc\" || waybar -c ~/.config/waybar/dock.jsonc -s ~/.config/waybar/dock.css >/dev/null 2>&1 &'"))
 
 -- Focus navigation - Arrow keys
 hl.bind(mainMod .. " + left",         hl.dsp.focus({ direction = "left" }))

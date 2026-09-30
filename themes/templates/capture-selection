@@ -3,7 +3,6 @@
 set -u
 
 ACTION=${1:-screenshot}
-SCREENSHOTS_DIR="$HOME/Pictures/Screenshots"
 IMAGE=$(mktemp --suffix=.png)
 
 cleanup() {
@@ -22,7 +21,7 @@ require_command() {
 }
 
 capture_selection() {
-    SLURP_ARGS='-b #272a2e99 -s #00000000 -c #81757dff -w 2' \
+    SLURP_ARGS='-b #1e1e2e99 -s #00000000 -c #cba6f7ff -w 2' \
         grimblast --freeze save area "$IMAGE" || {
         notify "Failed to capture selection"
         exit 1
@@ -39,13 +38,6 @@ case "$ACTION" in
         capture_selection
         wl-copy --type image/png < "$IMAGE"
         notify "Screenshot copied to clipboard"
-        ;;
-    save)
-        mkdir -p "$SCREENSHOTS_DIR"
-        capture_selection
-        OUTPUT="$SCREENSHOTS_DIR/screenshot-$(date +%Y%m%d-%H%M%S).png"
-        cp "$IMAGE" "$OUTPUT"
-        notify "Screenshot saved: $OUTPUT"
         ;;
     ocr)
         require_command tesseract

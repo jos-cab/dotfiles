@@ -99,6 +99,7 @@ export LC_CTYPE=C.utf8
 # Add local bin directories to PATH
 export PATH="$HOME/.local/bin:$PATH"
 export PATH="$HOME/bin:$PATH"
+export PATH="$HOME/.spicetify:$PATH"
 
 # ======= Application Settings =======
 export COWPATH=/usr/share/cowsay/cows
@@ -123,12 +124,7 @@ export BAT_THEME="Catppuccin Mocha"
 # Qt Platform Theme
 export QT_QPA_PLATFORMTHEME=qt6ct
 
-# Ensure Qt apps use dark theme
-export QT_AUTO_SCREEN_SCALE_FACTOR=1
-export QT_ENABLE_HIGHDPI_SCALING=1
-
 # Dark Theme Preference
-export GTK_THEME=catppuccin-mocha-mauve-standard+default
 export GTK_APPLICATION_PREFER_DARK_THEME=1
 
 # ======= XDG Base Directory Specification =======
