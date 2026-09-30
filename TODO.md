@@ -14,4 +14,5 @@
 - [ ] Extend automatic theme application to Neovim, PyCharm, and IntelliJ IDEA.
 - [ ] Add mail notifications for university email.
 - [ ] Rework GTK and Qt theme generation.
+- [ ] Fix Waybar dock click-through across the full screen width.
 - [ ] Review other Wayland and Hyprland setups for useful ideas and scripts.
