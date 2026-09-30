@@ -52,13 +52,17 @@ for i in "${!THEME_FILES[@]}"; do
 done
 
 betterdiscord_theme="$HOME/.config/BetterDiscord/themes/midnight.theme.css"
-if [ -f "$betterdiscord_theme" ]; then
+betterdiscord_template="$ROOT_DIR/themes/templates/betterdiscord.theme.css"
+if [ -f "$betterdiscord_template" ]; then
     generated=$(mktemp)
-    cp "$betterdiscord_theme" "$generated"
-    for color in "${!old[@]}"; do
-        [ -n "${new[$color]:-}" ] || continue
-        perl -0pi -e "s/#${old[$color]}/#${new[$color]}/gi" "$generated"
+    cp "$betterdiscord_template" "$generated"
+bd_old=(eceff4 e5e9f0 d8dee9 7f849c 616e88 434c5e 3b4252 272c36 2e3440 585b70)
+bd_new=(6 6 6 10 10 4 3 1 0 2)
+    for color in "${!bd_old[@]}"; do
+        perl -0pi -e "s/#${bd_old[$color]}/#${new[${bd_new[$color]}]}/gi" "$generated"
     done
+    perl -0pi -e "s/#bf616a/#${new[14]}/gi; s/#b48ead/#${new[13]}/gi; s/#a3be8c/#${new[18]}/gi; s/#81a1c1/#${new[22]}/gi; s/#88c0d0/#${new[20]}/gi; s/#ebcb8b/#${new[17]}/gi; s/#d08770/#${new[16]}/gi; s/#b38add/#${new[13]}/gi" "$generated"
+    mkdir -p "$(dirname "$betterdiscord_theme")"
     mv "$generated" "$betterdiscord_theme"
 fi
 

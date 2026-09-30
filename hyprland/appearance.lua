@@ -7,8 +7,8 @@ hl.config({
         gaps_in  = 5,
         gaps_out = 10,
         border_size = 2,
-        ["col.active_border"]   = "rgba(81757dee)",
-        ["col.inactive_border"] = "rgba(30363baa)",
+        ["col.active_border"]   = "rgba(cba6f7ee)",
+        ["col.inactive_border"] = "rgba(313244aa)",
         resize_on_border = true,
         allow_tearing  = true,
         layout = "dwindle",
@@ -22,7 +22,7 @@ hl.config({
             enabled      = false,
             range        = 8,
             render_power = 3,
-            color        = "rgba(272a2eee)",
+            color        = "rgba(1e1e2eee)",
         },
         blur = {
             enabled           = false,
@@ -42,7 +42,7 @@ hl.config({
         force_default_wallpaper = 0,
         disable_hyprland_logo   = true,
         disable_splash_rendering = true,
-        background_color = "rgba(272a2eff)",
+        background_color = "rgba(1e1e2eff)",
         -- vrr = 1, -- uncomment to enable
     },
 })

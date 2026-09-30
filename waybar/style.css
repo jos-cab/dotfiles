@@ -11,7 +11,7 @@
 /* Main bar */
 window#waybar {
 	background: transparent;
-	color: #d8dee0;
+	color: #cdd6f4;
 	font-size: 14px;
 	padding: 4px 0px;
 }
@@ -30,25 +30,25 @@ window#waybar.solo {
 
 /* Tooltips */
 tooltip {
-	background: #30363b;
-	color: #d8dee0;
+	background: #313244;
+	color: #cdd6f4;
 	border-radius: 8px;
-	border: 1px solid #39464e;
+	border: 1px solid #45475a;
 }
 
 tooltip label {
-	color: #d8dee0;
+	color: #cdd6f4;
 }
 
 /* Workspaces */
 #workspaces {
-	background: #23272b;
+	background: #181825;
 	margin: 4px 2px;
 	padding: 0px 8px;
 	border-radius: 12px;
 	border: 0px;
 	font-style: normal;
-	color: #d8dee0;
+	color: #cdd6f4;
 }
 
 #workspaces button {
@@ -56,7 +56,7 @@ tooltip label {
 	margin: 4px;
 	border-radius: 50%;
 	border: 0;
-	color: #626d73;
+	color: #6c7086;
 	background: transparent;
 	transition: all 0.25s ease-in-out;
 	min-width: 20px;
@@ -66,58 +66,58 @@ tooltip label {
 }
 
 #workspaces button.active {
-	color: #272a2e;
-	background: #62727a;
+	color: #1e1e2e;
+	background: #89b4fa;
 }
 
 #workspaces button.focused {
-	color: #272a2e;
-	background: #81757d;
+	color: #1e1e2e;
+	background: #cba6f7;
 }
 
 #workspaces button.urgent {
-	color: #272a2e;
-	background: #9b6266;
+	color: #1e1e2e;
+	background: #f38ba8;
 }
 
 #workspaces button:hover {
-	background: #30363b;
-	color: #d8dee0;
+	background: #313244;
+	color: #cdd6f4;
 	box-shadow: none;
 }
 
 #workspaces button.active:hover {
-	color: #30363b;
+	color: #313244;
 	background: #a6c8ff;
 }
 
 #workspaces button.focused:hover {
-	color: #30363b;
+	color: #313244;
 	background: #d8bfff;
 }
 
 #workspaces button.urgent:hover {
-	color: #30363b;
+	color: #313244;
 	background: #ffabbc;
 }
 
 /* Window title */
 #window {
-	background: #23272b;
+	background: #181825;
 	margin: 4px 10px 4px 0px;
 	padding: 1px 10px;
 	border-radius: 12px;
-	color: #d8dee0;
+	color: #cdd6f4;
 	font-weight: normal;
 }
 
 /* Right modules - grouped together */
 
 .modules-right widget > * {
-	background: #23272b;
+	background: #181825;
 	padding: 0px 4px;
 	margin: 4px 0px;
-	color: #d8dee0;
+	color: #cdd6f4;
 }
 
 .modules-right widget:first-child > * {
@@ -132,23 +132,23 @@ tooltip label {
 }
 
 #pulseaudio {
-	color: #62727a;
+	color: #89b4fa;
 }
 
 #cpu {
-	color: #66766d;
+	color: #a6e3a1;
 }
 
 #memory {
-	color: #a69d7d;
+	color: #f9e2af;
 }
 
 #temperature {
-	color: #927d70;
+	color: #fab387;
 }
 
 #tray {
-	color: #81757d;
+	color: #b4befe;
 }
 
 #tray widget > * {
@@ -158,7 +158,7 @@ tooltip label {
 }
 
 #clock {
-	color: #81757d;
+	color: #cba6f7;
 }
 
 /* System tray */
@@ -168,20 +168,20 @@ tooltip label {
 
 #tray > .needs-attention {
 	-gtk-icon-effect: highlight;
-	background-color: #9b6266;
+	background-color: #f38ba8;
 }
 
 /* Temperature warnings */
 #temperature.critical {
-	background-color: #9b6266;
-	color: #272a2e;
+	background-color: #f38ba8;
+	color: #1e1e2e;
 	border-radius: 15px;
 }
 
 /* Power button */
 #custom-power {
-	background: #9b6266;
-	color: #272a2e;
+	background: #f38ba8;
+	color: #1e1e2e;
 	border-radius: 50%;
 	margin: 4px 10px;
 	padding: 0;
@@ -192,28 +192,28 @@ tooltip label {
 }
 
 #custom-power:hover {
-	background: #89575b;
+	background: #eba0ac;
 }
 
 /* Temperature warnings */
 #temperature.critical {
-	background-color: #9b6266;
-	color: #272a2e;
+	background-color: #f38ba8;
+	color: #1e1e2e;
 	border-radius: 15px;
 }
 
 /* Audio muted */
 #pulseaudio.muted {
-	background-color: #30363b;
-	color: #626d73;
+	background-color: #313244;
+	color: #6c7086;
 }
 
 /* Hover effects */
 .modules-right widget > *:hover {
-	background: #30363b;
+	background: #313244;
 	transition: all 0.3s ease-in-out;
 }
 
 #tray:hover {
-	background: #23272b;
+	background: #181825;
 }
