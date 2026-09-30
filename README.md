@@ -107,7 +107,8 @@ is written in **Lua** and split into modules under `hyprland/`.
 -   Application-specific rules
 -   Workspace management plus a scratchpad workspace
 -   Runtime gap / border / rounding adjustment bound to the keyboard
--   Screenshot, OCR and QR-code capture straight to the clipboard
+-   Screenshot, OCR and QR-code capture helpers
+-   `Print` copies screenshots to the clipboard; `Shift + Print` saves them under `~/Pictures/Screenshots`
 
 ### Zsh + Starship
 
@@ -119,13 +120,14 @@ is written in **Lua** and split into modules under `hyprland/`.
 
 -   Source palettes live in `themes/*.conf`; generated configs use templates under `themes/templates/`
 -   Available themes: Catppuccin Mocha/Macchiato, Tokyo Night, Gruvbox Dark, Nord, Dracula, Rosé Pine and One Dark
--   Apply a palette across Hyprland, Kitty, Waybar, Wofi, Mako and Zathura:
+-   Apply a palette across Hyprland, Kitty, Waybar, Wofi, Mako, Zathura, GTK, Qt, BetterDiscord, Spicetify, Brave, and VS Code:
 
     ```bash
-    dotfiles-theme themes/tokyo-night.conf
+    dotfiles-theme tokyo-night
     ```
 
--   `theme` genera y selecciona temas GTK 3/4 y Qt5/Qt6 desde la paleta local, sin depender de `~/gtk` ni `~/qt5ct`. Run `~/dotfiles/theme <name>` (for example, `~/dotfiles/theme tokyo-night`). Restart already-open applications to reload their theme.
+-   `dotfiles-theme` is installed from the repository's `theme` script and accepts either a theme name or a `.conf` path. Restart already-open applications to reload their theme.
+-   Theme work and remaining ideas are tracked in [TODO.md](TODO.md).
 
 ## Keybindings
 
@@ -149,7 +151,8 @@ is written in **Lua** and split into modules under `hyprland/`.
 | `Super + U` | System update menu |
 | `Super + P` | Color picker |
 | `Super + Shift + V` | Clipboard history |
-| `Print` | Screenshot selection |
+| `Print` | Copy screenshot selection |
+| `Shift + Print` | Save screenshot selection to `~/Pictures/Screenshots` |
 | `Super + Shift + O` | OCR selection |
 | `Super + Shift + R` | Read QR selection |
 | `Super + W` | Toggle Waybar |
@@ -170,7 +173,7 @@ These tools are not required by the core desktop configuration.
 -   Date and time
 -   Workspaces module
 -   Catppuccin Mocha-inspired CSS styling
--   Optional dock bar (`dock.jsonc` / `dock.css`)
+-   Optional centered application dock (`dock.jsonc` / `dock.css`) with terminal, file manager, browser, Discord, and Spotify launchers
 
 ### Neovim
 

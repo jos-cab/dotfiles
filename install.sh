@@ -389,9 +389,9 @@ if [ -f "$DOTFILES_DIR/zathura/zathurarc" ]; then
 fi
 
 # Install theme selector
-if [ -x "$DOTFILES_DIR/themes/apply" ]; then
+if [ -x "$DOTFILES_DIR/theme" ]; then
     mkdir -p "$HOME/.local/bin"
-    create_symlink "$HOME/.local/bin/dotfiles-theme" "$DOTFILES_DIR/themes/apply"
+    create_symlink "$HOME/.local/bin/dotfiles-theme" "$DOTFILES_DIR/theme"
 fi
 
 # Link zsh configs
