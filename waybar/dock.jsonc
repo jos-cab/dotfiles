@@ -3,7 +3,7 @@
   "layer": "top",
   "position": "bottom",
   "width": 0,
-  "margin-bottom": 8,
+  "margin-bottom": 10,
   "exclusive": false,
   "passthrough": false,
   "spacing": 6,

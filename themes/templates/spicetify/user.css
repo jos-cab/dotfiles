@@ -1,0 +1,527 @@
+* {
+  box-shadow: none !important;
+}
+
+*:before,
+*:after {
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+:root {
+  --border-radius-1: 8px;
+  --now-playing-bar-height: 5.625rem;
+  --now-playing-bar-padding: 0.25rem;
+  --background-base: var(--spice-main);
+  --background-highlight: var(--spice-card-hover);
+  --background-press: var(--spice-selected-row);
+  --background-elevated-base: var(--spice-main-elevated);
+  --background-elevated-highlight: var(--spice-card-hover);
+  --background-elevated-press: var(--spice-selected-row);
+  --background-tinted-base: var(--spice-card);
+  --background-tinted-highlight: var(--spice-card-hover);
+  --background-tinted-press: var(--spice-selected-row);
+  --text-base: var(--spice-text);
+  --text-subdued: var(--spice-subtext);
+  --essential-base: var(--spice-text);
+  --essential-subdued: var(--spice-subtext);
+  --decorative-base: var(--spice-button);
+  --decorative-subdued: var(--spice-button-disabled);
+  --carousel-start-chevron-gradient: transparent;
+  --carousel-end-chevron-gradient: transparent;
+}
+
+.Root__now-playing-bar,
+.Root__now-playing-bar footer,
+.Root__right-sidebar,
+.UrfDp0_mKGL9hkfh9g_R {
+  border-radius: var(--border-radius-1) !important;
+}
+
+h1 {
+  font-weight: 700 !important;
+}
+
+.main-nowPlayingWidget-nowPlaying .main-trackInfo-name {
+  overflow: unset;
+  font-size: 16px !important;
+}
+
+.main-nowPlayingWidget-nowPlaying .main-trackInfo-artists {
+  overflow: unset;
+  font-size: 15px;
+}
+
+.main-trackList-rowPlayPauseIcon {
+  transform: scale(1.3);
+}
+
+.main-downloadButton-button svg,
+.x-downloadButton-button svg {
+  height: 32px;
+  width: 32px;
+}
+
+.main-playbackBarRemainingTime-container,
+.playback-bar__progress-time-elapsed,
+.playback-bar__progress-time {
+  font-size: 15px;
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+.main-playPauseButton-button {
+  background-color: unset !important;
+  color: var(--spice-subtext) !important;
+}
+
+.main-playPauseButton-button svg {
+  height: 28px;
+  width: 28px;
+}
+
+.progress-bar {
+  --fg-color: var(--spice-button);
+}
+
+.progress-bar__bg,
+.progress-bar__fg,
+.progress-bar__fg_wrapper {
+  height: 5px;
+}
+
+.progress-bar-wrapper {
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+.control-button::before {
+  font-size: 20px;
+}
+
+.ExtraControls svg {
+  height: 20px;
+  width: 20px;
+}
+
+.main-entityHeader-backgroundColor,
+.main-actionBarBackground-background {
+  background-color: unset !important;
+  background-image: none !important;
+}
+
+.main-entityHeader-shadow {
+  box-shadow: none !important;
+}
+
+.main-topBar-background,
+.Root__top-bar,
+.main-topBar-container {
+  background-color: var(--spice-topbar) !important;
+}
+
+.main-topBar-searchBar,
+.x-searchInput-searchInputInput,
+.x-searchInput-searchInputInput:hover,
+.x-searchInput-searchInputInput:focus {
+  background-color: var(--spice-card) !important;
+  color: var(--spice-text) !important;
+  border: 1px solid var(--spice-selected-row) !important;
+}
+
+.main-topBar-searchBar::placeholder,
+.x-searchInput-searchInputInput::placeholder {
+  color: var(--spice-subtext) !important;
+}
+
+.main-navBar-navBarLink:hover,
+.main-rootlist-rootlistItem:hover,
+.main-trackList-trackListRow:hover,
+.main-card-card:hover {
+  background-color: var(--spice-card-hover) !important;
+}
+
+[class*="card__on-click"],
+[class*="card__on-click"]:hover,
+[class*="card__button"],
+[class*="card__button"]:hover {
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+[class*="card__on-click"]::before,
+[class*="card__on-click"]::after,
+[class*="card__button"]::before,
+[class*="card__button"]::after {
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+[role="button"][aria-labelledby^="card-title-"] {
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+.e-10860-card,
+.e-10860-card:hover,
+.e-10860-legacy-box--interactive,
+.e-10860-legacy-box--interactive:hover,
+[data-encore-id="card"],
+[data-encore-id="card"]:hover {
+  background: var(--spice-card) !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  --background-base: var(--spice-card) !important;
+  --background-highlight: var(--spice-card-hover) !important;
+  --background-press: var(--spice-selected-row) !important;
+}
+
+.e-10860-card::before,
+.e-10860-card::after,
+.e-10860-legacy-box--interactive::before,
+.e-10860-legacy-box--interactive::after,
+[data-encore-id="card"]::before,
+[data-encore-id="card"]::after {
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+[class*="carousel-item"],
+[class*="carousel-gridlist"],
+[data-layout="stack"],
+[data-collection] {
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+[data-carousel-item]::before,
+[data-carousel-item]::after,
+[data-carousel-gridlist-item]::before,
+[data-carousel-gridlist-item]::after,
+[data-layout="stack"]::before,
+[data-layout="stack"]::after,
+[class*="carousel-item"]::before,
+[class*="carousel-item"]::after,
+[class*="carousel-gridlist"]::before,
+[class*="carousel-gridlist"]::after,
+[data-encore-id="card"]::before,
+[data-encore-id="card"]::after {
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
+}
+
+[data-carousel-item] button::before,
+[data-carousel-item] button::after,
+[data-carousel-gridlist-item] button::before,
+[data-carousel-gridlist-item] button::after,
+[data-carousel-item] *::before,
+[data-carousel-item] *::after,
+[data-carousel-gridlist-item] *::before,
+[data-carousel-gridlist-item] *::after,
+[data-encore-id="card"] *::before,
+[data-encore-id="card"] *::after {
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+}
+
+[data-carousel-item] *,
+[data-carousel-gridlist-item] *,
+[data-encore-id="card"] * {
+  --carousel-start-chevron-gradient: transparent !important;
+  --carousel-end-chevron-gradient: transparent !important;
+}
+
+[data-carousel-item] [style*="gradient"],
+[data-carousel-gridlist-item] [style*="gradient"],
+[data-encore-id="card"] [style*="gradient"] {
+  background-image: none !important;
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+}
+
+.e-10860-card [style*="--card-color"],
+.e-10860-card [style*="background-color"] {
+  background: var(--spice-card) !important;
+  background-image: none !important;
+}
+
+.e-10860-card:hover {
+  background: var(--spice-card-hover) !important;
+}
+
+.main-contextMenu-menuItemButton:hover,
+.main-userWidget-dropDownMenuItemButton:hover {
+  background-color: var(--spice-selected-row) !important;
+}
+
+.main-trackList-playingIcon {
+  filter: saturate(0%);
+}
+
+.main-rootlist-rootlistDividerGradient {
+  background: unset;
+}
+
+.main-rootlist-rootlistDivider {
+  background-color: var(--spice-button);
+}
+
+.x-searchInput-searchInputInput {
+  font-size: 14px;
+}
+
+.main-type-mesto {
+  font-size: 16px;
+  line-height: 20px;
+}
+
+.main-type-ballad {
+  font-size: 14px;
+}
+
+.main-cardSubHeader-root {
+  overflow: hidden !important;
+}
+
+.main-buddyFeed-username a {
+  color: var(--spice-text) !important;
+  font-size: 17px;
+  font-weight: 500;
+}
+
+.main-buddyFeed-artistAndTrackName a,
+.main-buddyFeed-playbackContextLink span {
+  font-size: 13px;
+}
+
+.os-scrollbar-handle {
+  background: var(--spice-button) !important;
+  border-radius: var(--border-radius-1);
+}
+
+.os-theme-spotify.os-host-transition > .os-scrollbar-vertical > .os-scrollbar-track > .os-scrollbar-handle {
+  border-radius: var(--border-radius-1);
+  width: 4px;
+  background-color: var(--spice-button-disabled);
+}
+
+.os-theme-spotify.os-host-transition > .os-scrollbar-vertical > .os-scrollbar-track {
+  width: 4px;
+}
+
+.main-trackList-trackList.main-trackList-indexable .main-trackList-trackListRowGrid {
+  grid-template-columns: [index] 48px [first] 6fr [var1] 4fr [var2] 3fr [last] minmax(120px, 1fr) !important;
+}
+
+.main-dropDown-dropDown,
+.x-settings-input {
+  background-color: var(--spice-card) !important;
+  color: var(--spice-text) !important;
+  border: 1px solid var(--spice-selected-row);
+}
+
+.encore-dark-theme .encore-bright-accent-set,
+.encore-dark-theme .encore-bright-accent-set:hover {
+  --background-base: var(--spice-button);
+  --background-highlight: var(--spice-button-active);
+  --background-press: var(--spice-selected-row);
+  --decorative-subdued: var(--spice-button-disabled);
+}
+
+.encore-dark-theme .encore-bright-accent-set,
+.encore-dark-theme .encore-bright-accent-set:hover {
+  --background-base: var(--spice-button-active);
+  --background-highlight: var(--spice-button-active);
+  --background-press: var(--spice-button-active);
+}
+
+.main-nowPlayingBar-container {
+  justify-content: center;
+  height: var(--now-playing-bar-height);
+  width: 100%;
+  border-radius: var(--border-radius-1);
+  padding: var(--now-playing-bar-padding);
+  border: 1px solid var(--spice-selected-row);
+  background-color: var(--spice-player) !important;
+}
+
+.main-nowPlayingBar-container .GlueDropTarget,
+.main-coverSlotCollapsed-container {
+  max-height: 56px;
+  max-width: 56px;
+}
+
+.cover-art-image,
+.artist-artistOverview-sideBlock > div > section > div:nth-child(3) > section:nth-child(2) > div > img,
+.view-homeShortcutsGrid-image {
+  border-radius: 4px;
+}
+
+.main-entityHeader-shadow,
+.x-categoryCard-image,
+.x-entityImage-circle,
+.main-cardImage-image,
+.main-cardImage-imageWrapper,
+.main-entityHeader-imagePlaceholder > div,
+.artist-artistOverview-sideBlock > div > section {
+  border-radius: 6px;
+}
+
+.main-cardImage-circular,
+.main-entityHeader-imagePlaceholder,
+.main-entityHeader-circle {
+  border-radius: 50% !important;
+}
+
+.main-trackList-rowImage {
+  border-radius: 3px;
+}
+
+.main-home-homeHeader {
+  background-color: var(--spice-main) !important;
+}
+
+.volume-bar .progress-bar {
+  margin: 0 0.4rem;
+}
+
+.volume-bar .playback-progressbar {
+  width: 70%;
+}
+
+.volume-bar {
+  flex: 0 150px;
+}
+
+.ellipsis-one-line.main-type-mesto {
+  font-size: 14px;
+}
+
+.main-entityHeader-container.main-entityHeader-nonWrapped {
+  min-height: 325px;
+  height: 15vh;
+}
+
+.ffFwfKcPDbmAPLXzxzKq {
+  border-radius: 6px;
+}
+
+.playlist-playlist-actionBarBackground-background {
+  visibility: hidden;
+}
+
+.main-home-homeHeader,
+.main-actionBarBackground-background,
+.x-actionBarBackground-background,
+.x-entityHeader-overlay,
+.main-entityHeader-overlay,
+.main-entityHeader-background,
+.main-entityHeader-backgroundColor,
+.main-topBar-overlay,
+.main-topBar-background,
+.main-actionBarBackground-background,
+.playlist-playlist-actionBarBackground-background {
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+.main-entityHeader-shadow,
+.main-entityHeader-shadow::before,
+.main-entityHeader-shadow::after,
+.main-card-card::before,
+.main-card-card::after,
+.main-trackList-trackListHeader::before,
+.main-trackList-trackListHeader::after,
+.main-actionBarBackground-background::before,
+.main-actionBarBackground-background::after,
+.main-topBar-overlay,
+.main-entityHeader-overlay {
+  display: none !important;
+  background: none !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+.Root__main-view [style*="background-image"],
+.Root__right-sidebar [style*="background-image"],
+.Root__right-sidebar [style*="background-color"],
+.Root__main-view::before,
+.Root__main-view::after,
+.Root__right-sidebar::before,
+.Root__right-sidebar::after,
+.Root__now-playing-bar::before,
+.Root__now-playing-bar::after,
+.main-view-container::before,
+.main-view-container::after,
+.main-view-container__scroll-node-child-spacer,
+.main-view-container__scroll-node-child-spacer::before,
+.main-view-container__scroll-node-child-spacer::after {
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+.main-nowPlayingView-content.main-nowPlayingView-gradient,
+.main-entityHeader-container + div,
+.main-entityHeader-container + div > div,
+.main-entityHeader-container + div[style*="background-color"],
+.main-entityHeader-container + div > div[style*="background-color"],
+.Root__right-sidebar > aside,
+.Root__right-sidebar > aside::before,
+.Root__right-sidebar > aside::after,
+.Root__right-sidebar .main-buddyFeed-container,
+.Root__right-sidebar .main-buddyFeed-container::before,
+.Root__right-sidebar .main-buddyFeed-container::after,
+.main-buddyFeed-container,
+.main-buddyFeed-content,
+.main-buddyFeed-friendActivity,
+.main-buddyFeed-activityMetadata,
+.main-buddyFeed-activityMetadata::before,
+.main-buddyFeed-activityMetadata::after,
+.main-buddyFeed-activityMetadata > div::before,
+.main-buddyFeed-activityMetadata > div::after {
+  background: var(--spice-sidebar) !important;
+  background-image: none !important;
+  background-color: var(--spice-sidebar) !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
+  transition: none !important;
+}
+
+.main-home-filterChipsContainer,
+.main-home-filterChipsSection,
+.main-home-filterChipsSection::before,
+.main-home-filterChipsSection::after,
+.main-home-filterChipsContainer::before,
+.main-home-filterChipsContainer::after,
+.main-trackList-trackListHeaderStuck,
+.main-trackList-trackListHeaderStuck::before,
+.main-trackList-trackListHeaderStuck::after {
+  background: var(--spice-main) !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+.main-home-filterChipsContainer button,
+.main-home-filterChipsSection button {
+  background-color: var(--spice-card) !important;
+  color: var(--spice-text) !important;
+}
+
+.main-home-filterChipsContainer button:hover,
+.main-home-filterChipsSection button:hover,
+.main-home-filterChipsContainer button[aria-checked="true"],
+.main-home-filterChipsSection button[aria-checked="true"] {
+  background-color: var(--spice-button-active) !important;
+  color: var(--spice-main) !important;
+}

@@ -3,7 +3,7 @@
 -- Globals exposed for keybinds.lua
 terminal    = "kitty"
 fileManager = "thunar"
-menu        = "wofi --show drun"
+menu        = "pgrep -x wofi >/dev/null || wofi --show drun --prompt 'Program Launcher'"
 browser     = 'brave --ozone-platform=wayland --enable-features=UseOzonePlatform --password-store=basic --profile-directory="Default"'
 discord     = "discord"
 spotify     = "spotify-launcher"
