@@ -38,8 +38,6 @@ cleanup_on_exit() {
 trap cleanup_on_exit EXIT INT TERM
 DISK_WARN_THRESHOLD=90                   # % uso para warning
 DISK_CRIT_THRESHOLD=95                   # % uso para crítico
-REBOOT_CHECK_KERNELS=("linux" "linux-zen" "linux-lts" "linux-hardened")
-
 mkdir -p "$LOGDIR" 2>/dev/null || true
 
 # ─────────────────────────────────────────────
@@ -410,6 +408,147 @@ check_disk_space() {  # (13)
     fi
 }
 
+check_failed_services() {
+    step "Check — failed systemd units"
+    if ! need_cmd systemctl; then
+        skip "systemctl not found"
+        record "services" "SKIP" "systemctl not found"
+        return 0
+    fi
+    local failed
+    failed=$(systemctl --failed --no-legend --plain 2>/dev/null || true)
+    if [[ -z "$failed" ]]; then
+        ok "No failed systemd units"
+        record "services" "OK"
+        return 0
+    fi
+    warn_msg "Failed systemd units detected:"
+    while IFS= read -r line; do log "    $line"; done <<< "$failed"
+    record "services" "WARN" "failed units"
+}
+
+check_failed_user_services() {
+    step "Check — failed user systemd units"
+    if ! need_cmd systemctl || ! systemctl --user is-system-running >/dev/null 2>&1; then
+        skip "user systemd manager unavailable"
+        record "user_services" "SKIP" "manager unavailable"
+        return 0
+    fi
+    local failed
+    failed=$(systemctl --user --failed --no-legend --plain 2>/dev/null || true)
+    if [[ -z "$failed" ]]; then
+        ok "No failed user systemd units"
+        record "user_services" "OK"
+        return 0
+    fi
+    warn_msg "Failed user systemd units detected:"
+    while IFS= read -r line; do log "    $line"; done <<< "$failed"
+    record "user_services" "WARN" "failed units"
+}
+
+check_pending_updates() {
+    step "Check — pending repository updates"
+    if ! need_cmd checkupdates; then
+        skip "checkupdates not installed"
+        record "pending_updates" "SKIP" "not installed"
+        return 0
+    fi
+    local updates count
+    updates=$(checkupdates 2>/dev/null || true)
+    if [[ -z "$updates" ]]; then
+        ok "No pending repository updates"
+        record "pending_updates" "OK"
+        return 0
+    fi
+    count=$(wc -l <<< "$updates")
+    warn_msg "$count repository update(s) available"
+    while IFS= read -r line; do log "    $line"; done <<< "$updates"
+    record "pending_updates" "WARN" "$count update(s) available"
+}
+
+check_foreign_packages() {
+    step "Check — foreign packages"
+    if ! need_cmd pacman; then
+        skip "pacman not found"
+        record "foreign" "SKIP" "pacman not found"
+        return 0
+    fi
+    local packages count
+    packages=$(pacman -Qmq 2>/dev/null || true)
+    if [[ -z "$packages" ]]; then
+        ok "No foreign packages"
+        record "foreign" "OK"
+        return 0
+    fi
+    count=$(wc -l <<< "$packages")
+    warn_msg "$count foreign package(s) installed (AUR/manual):"
+    while IFS= read -r line; do log "    $line"; done <<< "$packages"
+    record "foreign" "WARN" "$count foreign package(s)"
+}
+
+check_pacman_lock() {
+    step "Check — pacman database lock"
+    local lock="/var/lib/pacman/db.lck"
+    if [[ ! -e "$lock" ]]; then
+        ok "No pacman database lock"
+        record "pacman_lock" "OK"
+        return 0
+    fi
+    local holder=""
+    if need_cmd fuser; then
+        holder=$(fuser "$lock" 2>/dev/null || true)
+    fi
+    if [[ -n "$holder" ]]; then
+        warn_msg "Pacman database is currently locked by process(es): $holder"
+        record "pacman_lock" "WARN" "active lock"
+    else
+        warn_msg "Stale pacman database lock detected: $lock"
+        record "pacman_lock" "WARN" "stale lock — verify before removing"
+    fi
+}
+
+check_bootloader() {
+    step "Check — bootloader"
+    if ! need_cmd bootctl || [[ ! -d /sys/firmware/efi ]]; then
+        skip "systemd-boot unavailable or system is not booted with UEFI"
+        record "bootloader" "SKIP" "not applicable"
+        return 0
+    fi
+    local status
+    status=$(bootctl status 2>&1 || true)
+    if grep -q "Product: GRUB" <<< "$status"; then
+        ok "GRUB detected"
+        record "bootloader" "OK" "GRUB"
+    elif grep -q "systemd-boot" <<< "$status"; then
+        ok "systemd-boot detected"
+        record "bootloader" "OK" "systemd-boot"
+    else
+        warn_msg "UEFI bootloader status needs review"
+        while IFS= read -r line; do log "    $line"; done <<< "$status"
+        record "bootloader" "WARN" "bootloader review needed"
+    fi
+}
+
+check_journal_errors() {
+    step "Check — current boot journal errors"
+    if ! need_cmd journalctl; then
+        skip "journalctl not found"
+        record "journal_errors" "SKIP" "journalctl not found"
+        return 0
+    fi
+    local errors count
+    errors=$(journalctl -b -p warning..err --no-pager -o short-monotonic 2>/dev/null || true)
+    if [[ -z "$errors" ]]; then
+        ok "No warning/error entries in current boot"
+        record "journal_errors" "OK"
+        return 0
+    fi
+    count=$(wc -l <<< "$errors")
+    warn_msg "$count warning/error journal entr(y/ies) in current boot; see log"
+    while IFS= read -r line; do log "    $line"; done < <(tail -n 10 <<< "$errors")
+    record "journal_errors" "WARN" "$count journal entr(y/ies)"
+}
+
 check_package_integrity() {  # (14)
     step "Check — package integrity (pacman -Qk)"
     if ! need_cmd pacman; then
@@ -464,46 +603,6 @@ check_pacnew() {  # (11)
         fi
     else
         info "Skipped — review manually with: pacdiff -o && sudo pacdiff"
-    fi
-}
-
-check_reboot_required() {  # (17)
-    step "Check — reboot required?"
-    local need_reboot=0 reason=""
-
-    # 1) kernel en ejecución vs módulos en disco
-    local running
-    running=$(uname -r)
-    if [[ ! -d "/usr/lib/modules/$running" ]]; then
-        need_reboot=1
-        reason+="running kernel $running modules replaced on disk; "
-    fi
-
-    # 2) librerías borradas en uso (lsof +D o checkservices)
-    if need_cmd lsof; then
-        local deleted
-        deleted=$(lsof +c 0 2>/dev/null | grep -c "(deleted)" || true)
-        if [[ "$deleted" -gt 0 ]]; then
-            need_reboot=1
-            reason+="$deleted processes using deleted libraries; "
-        fi
-    elif need_cmd needrestart 2>/dev/null; then
-        : # alternativa no implementada
-    fi
-
-    # 3) flag explícito de algunas distros
-    if [[ -f /run/reboot-required ]]; then
-        need_reboot=1
-        reason+="/run/reboot-required present; "
-    fi
-
-    if [[ $need_reboot -eq 1 ]]; then
-        warn_msg "REBOOT RECOMMENDED — $reason"
-        log "    ${C_YELLOW}Hint: reboot when convenient (sudo reboot)${C_RESET}"
-        record "reboot" "WARN" "reboot recommended"
-    else
-        ok "No reboot required"
-        record "reboot" "OK"
     fi
 }
 
@@ -754,15 +853,23 @@ run_cleanup() {
 
 run_health() {
     section "HEALTH CHECK"
+    check_disk_space || true
+    check_pending_updates || true
+    check_failed_services || true
+    check_failed_user_services || true
     check_package_integrity || true
     check_pacnew || true
+    check_foreign_packages || true
+    check_pacman_lock || true
+    check_bootloader || true
+    check_journal_errors || true
     show_cache_usage || true
 }
 
 run_full_maintenance() {
     run_updates
-    run_cleanup
     run_health
+    run_cleanup
 }
 
 run_everything() {
@@ -794,7 +901,6 @@ run_selected() {
     [[ ${SELECT_CACHE:-0} -eq 1 ]] && cleanup_pacman_cache || true
     [[ ${SELECT_CACHE:-0} -eq 1 ]] && cleanup_paru_cache || true
     [[ ${SELECT_JOURNAL:-0} -eq 1 ]] && vacuum_journal || true
-    check_reboot_required || true
     show_summary
     AUTO_CONFIRM=0
     send_notify "System Update" "Selected tasks completed"

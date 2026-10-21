@@ -6,26 +6,26 @@ ACTION=${1:-screenshot}
 IMAGE=$(mktemp --suffix=.png)
 
 cleanup() {
-    rm -f "$IMAGE"
+  rm -f "$IMAGE"
 }
 
 notify() {
-    notify-send "Selection capture" "$1"
+  notify-send "Selection capture" "$1"
 }
 
 require_command() {
-    if ! command -v "$1" >/dev/null 2>&1; then
-        notify "$1 is not installed"
-        exit 1
-    fi
+  if ! command -v "$1" >/dev/null 2>&1; then
+    notify "$1 is not installed"
+    exit 1
+  fi
 }
 
 capture_selection() {
-    SLURP_ARGS='-b #272a2e99 -s #00000000 -c #81757dff -w 2' \
-        grimblast --freeze save area "$IMAGE" || {
-        notify "Failed to capture selection"
-        exit 1
-    }
+  SLURP_ARGS='-b #272a2e99 -s #00000000 -c #81757dff -w 2' \
+    grimblast --freeze save area "$IMAGE" || {
+    notify "Failed to capture selection"
+    exit 1
+  }
 }
 
 trap cleanup EXIT
@@ -34,41 +34,49 @@ require_command grimblast
 require_command wl-copy
 
 case "$ACTION" in
-    screenshot)
-        capture_selection
-        wl-copy --type image/png < "$IMAGE"
-        notify "Screenshot copied to clipboard"
-        ;;
-    ocr)
-        require_command tesseract
-        capture_selection
+screenshot)
+  capture_selection
+  wl-copy --type image/png <"$IMAGE"
+  notify "Screenshot copied to clipboard"
+  ;;
+save)
+  require_command mkdir
+  capture_selection
+  mkdir -p "$HOME/Pictures/Screenshots"
+  OUTPUT="$HOME/Pictures/Screenshots/Screenshot-$(date +%Y%m%d-%H%M%S).png"
+  cp "$IMAGE" "$OUTPUT"
+  notify "Screenshot saved to $OUTPUT"
+  ;;
+ocr)
+  require_command tesseract
+  capture_selection
 
-        TEXT=$(tesseract "$IMAGE" stdout 2>/dev/null | sed -e 's/[[:space:]]*$//')
+  TEXT=$(tesseract "$IMAGE" stdout 2>/dev/null | sed -e 's/[[:space:]]*$//')
 
-        if [ -z "$TEXT" ]; then
-            notify "No text found"
-            exit 1
-        fi
+  if [ -z "$TEXT" ]; then
+    notify "No text found"
+    exit 1
+  fi
 
-        printf '%s' "$TEXT" | wl-copy
-        notify "Text copied to clipboard"
-        ;;
-    qr)
-        require_command zbarimg
-        capture_selection
+  printf '%s' "$TEXT" | wl-copy
+  notify "Text copied to clipboard"
+  ;;
+qr)
+  require_command zbarimg
+  capture_selection
 
-        RESULT=$(zbarimg --quiet --raw "$IMAGE" 2>/dev/null || true)
+  RESULT=$(zbarimg --quiet --raw "$IMAGE" 2>/dev/null || true)
 
-        if [ -z "$RESULT" ]; then
-            notify "No QR code found"
-            exit 1
-        fi
+  if [ -z "$RESULT" ]; then
+    notify "No QR code found"
+    exit 1
+  fi
 
-        printf '%s' "$RESULT" | wl-copy
-        notify "QR content copied to clipboard"
-        ;;
-    *)
-        notify "Unknown action: $ACTION"
-        exit 1
-        ;;
+  printf '%s' "$RESULT" | wl-copy
+  notify "QR content copied to clipboard"
+  ;;
+*)
+  notify "Unknown action: $ACTION"
+  exit 1
+  ;;
 esac

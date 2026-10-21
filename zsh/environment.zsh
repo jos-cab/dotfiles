@@ -96,8 +96,8 @@ export LC_ALL=C.utf8
 export LC_CTYPE=C.utf8
 
 # ======= Path Settings =======
-# Add local bin directories to PATH
-export PATH="$HOME/.local/bin:$PATH"
+export JAVA_HOME=/usr/lib/jvm/java-21-openjdk
+export PATH="$JAVA_HOME/bin:$HOME/.local/bin:$PATH"
 export PATH="$HOME/bin:$PATH"
 export PATH="$HOME/.spicetify:$PATH"
 

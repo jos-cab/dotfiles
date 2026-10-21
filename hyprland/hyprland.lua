@@ -28,6 +28,8 @@ local dotfilesRoot = os.getenv("DOTFILES_DIR") or (os.getenv("HOME") .. "/dotfil
 local dotfilesDir = dotfilesRoot .. "/hyprland"
 package.path = dotfilesDir .. "/?.lua;" .. package.path
 
+pcall(require, "local")
+
 -- Source all configuration files - order mirrors original hyprland.conf source order
 require("monitors")    -- monitors.lua
 require("programs")    -- programs.lua (defines terminal, fileManager, mainMod, etc.)
