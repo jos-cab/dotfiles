@@ -7,5 +7,6 @@ menu        = "pgrep -x wofi >/dev/null || wofi --show drun --prompt 'Program La
 browser     = 'brave --ozone-platform=wayland --enable-features=UseOzonePlatform --password-store=basic --profile-directory="Default"'
 discord     = "discord"
 spotify     = "spotify-launcher"
+editor      = "zeditor"
 
 mainMod = "SUPER" -- Sets "Windows" key as main modifier
