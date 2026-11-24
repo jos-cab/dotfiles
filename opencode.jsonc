@@ -1,0 +1,99 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "permissions": [
+    // Environment files
+    {
+      "action": "read",
+      "resource": "*.env",
+      "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": "*.env.*",
+      "effect": "deny"
+    },
+    // Private keys and certificates
+    {
+      "action": "read",
+      "resource": "*.pem",
+      "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": "*.key",
+      "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": "*.p12",
+      "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": "*.pfx",
+      "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": "*.p8",
+      "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": "*.pkcs12",
+      "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": "*.jks",
+      "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": "*.keystore",
+      "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": "*.crt",
+      "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": "*.cer",
+      "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": "*.der",
+      "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": "*.p7b",
+      "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": "*.p7c",
+      "effect": "deny"
+    },
+    // SSH private material
+    {
+      "action": "read",
+      "resource": "*/.ssh/*",
+      "effect": "deny"
+    },
+    // Sensitive filenames
+    {
+      "action": "read",
+      "resource": "*credentials*",
+      "effect": "deny"
+    },
+    {
+      "action": "read",
+      "resource": "*secret*",
+      "effect": "deny"
+    }
+  ]
+}

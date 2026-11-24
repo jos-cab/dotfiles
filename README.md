@@ -64,18 +64,9 @@ is written in **Lua** and split into modules under `hyprland/`.
     ./install.sh
     ```
 
-    The script will:
+    The installer requires backup authorization before changing `$HOME`, then creates links, optionally installs dependencies, configures Ananicy, checks PipeWire, and offers to set zsh as default shell.
 
--   Ask if you want to install required dependencies
--   Check for an AUR helper (Paru or Yay) and use it to install AUR packages
--   Ask if you want to backup existing configuration files
--   Create symbolic links from this repo to your `~/.config`
--   Copy the `ananicy` rules to `/etc/ananicy.d` and enable `ananicy-cpp.service`
--   Install `dotfiles-theme` in `~/.local/bin`
--   Check the status of the PipeWire user services
--   Offer to set zsh as your default shell
-
-    All prompts use single-key responses for a smoother experience.
+    Use `./install.sh --yes` for non-interactive execution. It authorizes required backups but declines optional dependency installation. Without `--yes`, non-interactive execution aborts.
 
 3. Configure local secrets if using 9Router:
 
@@ -88,13 +79,15 @@ is written in **Lua** and split into modules under `hyprland/`.
     Keep `local.lua` outside Git.
 
 
-> ⚠️ By default, the script will ask if you want to backup existing configuration files.
-> If you choose to backup, files will be saved as `<filename>.bak` (or `<filename>.bak.1`, `<filename>.bak.2`, etc. if backups already exist) in the same directory.
-> If you choose not to backup, existing files will be removed.
->
-> `~/.zshrc` is symlinked from `zsh/zshrc`; every other zsh file goes to `~/.config/zsh/`.
->
-> The script uses single-key prompts for a smoother experience - just press the corresponding key, no need to press Enter.
+### Safe conflict handling
+
+Backups are always enabled. Existing files, directories, valid symlinks, and dangling symlinks move to `<filename>.bak`; collisions use `.bak.1`, `.bak.2`, and so on. Older backups are never replaced.
+
+Declining backup or entering invalid input aborts before installation. The installer never deletes or silently replaces an existing destination.
+
+On a filesystem failure, links created by that run are removed and backups are restored when possible. Any failed restores are reported with exact paths for manual recovery. Recovery cannot undo changes outside `$HOME`: package installation, `/etc/ananicy.d`, service state, Git submodule updates, or a changed login shell.
+
+`~/.zshrc` is symlinked from `zsh/zshrc`; every other zsh file goes to `~/.config/zsh/`.
 
 ## Key Features
 

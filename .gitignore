@@ -27,3 +27,6 @@ ranger/history
 ranger/tagged
 ranger/colorschemes/__pycache__/
 ranger/plugins/__pycache__/
+
+__pycache__/
+*.py[cod]

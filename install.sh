@@ -4,7 +4,7 @@
 # Creates symlinks from ~/.config to dotfiles directory
 # Usage: ./install.sh
 
-set -e  # Exit on any error
+set -eE  # Exit on any error, including functions
 
 # Color codes for output
 RED='\033[0;31m'
@@ -45,52 +45,135 @@ check_dependencies() {
     fi
 }
 
-# Global variable to track if user wants backups
-DO_BACKUPS=false
+# Filesystem changes use physical paths under canonical $HOME. Parent symlinks
+# are rejected; final destinations may be symlinks and are backed up intact.
+DO_BACKUPS=true
+ASSUME_YES=false
+TRANSACTION_ACTIVE=false
+ROLLING_BACK=false
+RECOVERY_REQUIRED=()
+CREATED_LINKS=()
+CREATED_LINK_TARGETS=()
+CREATED_DIRS=()
+LINK_COUNT=0
+BACKUP_SOURCES=()
+BACKUP_PATHS=()
 
-# Function to backup existing files
-backup_if_exists() {
-    local file="$1"
-    if [ -e "$file" ] || [ -L "$file" ]; then
-        local backup="${file}.bak"
-        local counter=1
-        # If backup already exists, create numbered backups
-        while [ -e "$backup" ] || [ -L "$backup" ]; do
-            backup="${file}.bak.${counter}"
-            counter=$((counter + 1))
-        done
-        echo "Backing up $file -> $backup"
-        mv "$file" "$backup"
+path_exists() { [ -e "$1" ] || [ -L "$1" ]; }
+report_recovery() { RECOVERY_REQUIRED+=("$1"); }
+
+validate_home_path() {
+    local path="$1" parent
+    case "$path" in "$CANONICAL_HOME"|"$CANONICAL_HOME"/*) ;; *) log_error "Path escapes HOME: $path"; return 1 ;; esac
+    [ "$path" = "$CANONICAL_HOME" ] && return
+    parent=$(dirname "$path")
+    while [ "$parent" != "$CANONICAL_HOME" ]; do
+        if path_exists "$parent"; then
+            [ -d "$parent" ] && [ ! -L "$parent" ] || { log_error "Unsafe parent directory: $parent"; return 1; }
+        fi
+        parent=$(dirname "$parent")
+    done
+}
+
+ensure_directory() {
+    local dir="$1" parent
+    validate_home_path "$dir"
+    if path_exists "$dir"; then
+        [ -d "$dir" ] && [ ! -L "$dir" ] || { log_error "Expected real directory, found $dir"; return 1; }
+        return
+    fi
+    parent=$(dirname "$dir")
+    [ "$parent" = "$dir" ] || ensure_directory "$parent"
+    if [ "${INSTALL_MKDIR_FAIL:-}" = "$dir" ] || ! command mkdir "$dir"; then
+        log_error "Could not create directory $dir"; return 1
+    fi
+    CREATED_DIRS+=("$dir")
+}
+
+rollback() {
+    local i link expected_target actual_target source backup dir
+    [ "$ROLLING_BACK" = true ] && return
+    ROLLING_BACK=true
+    log_error "Installation interrupted; restoring filesystem state..."
+    for ((i=${#CREATED_LINKS[@]} - 1; i >= 0; i--)); do
+        link=${CREATED_LINKS[i]}; expected_target=${CREATED_LINK_TARGETS[i]}
+        if path_exists "$link"; then
+            actual_target=$(readlink "$link" 2>/dev/null || true)
+            if [ "$actual_target" != "$expected_target" ]; then
+                report_recovery "$link (changed destination: $actual_target)"
+            elif [ "${INSTALL_REMOVE_FAIL:-}" = "$link" ] || ! rm -f "$link"; then
+                report_recovery "$link (created link could not be removed)"
+            fi
+        fi
+    done
+    if [ -n "${INSTALL_REAPPEAR_DEST:-}" ]; then
+        printf '%s' "${INSTALL_REAPPEAR_CONTENT:-new destination}" > "$INSTALL_REAPPEAR_DEST"
+    fi
+    if [ -n "${INSTALL_REPLACE_LINK:-}" ]; then
+        rm -f "$INSTALL_REPLACE_LINK"
+        ln -s "${INSTALL_REPLACE_TARGET:-/changed}" "$INSTALL_REPLACE_LINK"
+    fi
+    for ((i=${#BACKUP_SOURCES[@]} - 1; i >= 0; i--)); do
+        source=${BACKUP_SOURCES[i]}; backup=${BACKUP_PATHS[i]}
+        path_exists "$backup" || continue
+        if path_exists "$source"; then
+            report_recovery "$source (new destination) and $backup (backup)"
+        elif [[ ",${INSTALL_RESTORE_FAIL:-}," == *",$source,"* ]] || ! mv -n "$backup" "$source" || path_exists "$backup" || ! path_exists "$source"; then
+            report_recovery "$source (backup: $backup)"
+        fi
+    done
+    for ((i=${#CREATED_DIRS[@]} - 1; i >= 0; i--)); do
+        dir=${CREATED_DIRS[i]}
+        rmdir "$dir" 2>/dev/null || report_recovery "$dir (created directory could not be removed)"
+    done
+    if [ "${#RECOVERY_REQUIRED[@]}" -gt 0 ]; then
+        log_error "Manual recovery required for: ${RECOVERY_REQUIRED[*]}"
     fi
 }
 
-# Function to create symlink with backup option
-# $1 = destination (.config path), $2 = source (dotfiles path)
+finish_failure() { local status=$1; [ "$TRANSACTION_ACTIVE" = true ] && rollback; trap - ERR INT TERM; exit "$status"; }
+on_error() { finish_failure "$?"; }
+on_signal() { log_error "Installation interrupted"; finish_failure "$1"; }
+trap on_error ERR
+trap 'on_signal 130' INT
+trap 'on_signal 143' TERM
+
+backup_if_exists() {
+    local file="$1" backup="${1}.bak" counter=1
+    path_exists "$file" || return
+    validate_home_path "$file"
+    while path_exists "$backup"; do backup="${file}.bak.${counter}"; counter=$((counter + 1)); done
+    echo "Backing up $file -> $backup"
+    if [ "${INSTALL_BACKUP_FAIL:-}" = "$file" ] || ! mv "$file" "$backup"; then
+        log_error "Could not back up $file"; return 1
+    fi
+    BACKUP_SOURCES+=("$file")
+    BACKUP_PATHS+=("$backup")
+}
+
+# $1 = destination, $2 = source
 create_symlink() {
-    local dest="$1"
-    local source="$2"
-    
-    # Validate inputs
-    if [[ -z "$dest" || -z "$source" ]]; then
-        echo "Error: create_symlink requires both destination and source paths"
-        return 1
-    fi
-    
-    # Create parent directory if it doesn't exist
-    mkdir -p "$(dirname "$dest")"
-    
-    # Backup existing file/directory/link if it exists and user wants backups
-    if [ "$DO_BACKUPS" = true ]; then
+    local dest="$1" source="$2"
+    [[ -n "$dest" && -n "$source" ]] || { log_error "create_symlink requires destination and source"; return 1; }
+    validate_home_path "$dest"
+    ensure_directory "$(dirname "$dest")"
+    validate_home_path "$dest"
+    if path_exists "$dest"; then
+        [ "$DO_BACKUPS" = true ] || { log_error "Refusing to replace existing $dest"; return 1; }
         backup_if_exists "$dest"
-    elif [ -e "$dest" ] || [ -L "$dest" ]; then
-        # If not backing up, just remove existing
-        echo "Removing existing $dest"
-        rm -rf "$dest"
     fi
-    
-    # Create symlink from ~/.config to dotfiles
     echo "Linking $dest -> $source"
-    ln -sf "$source" "$dest"
+    if [ "${INSTALL_LINK_FAIL:-}" = "$dest" ] || ! ln -s "$source" "$dest"; then
+        log_error "Could not link $dest"; return 1
+    fi
+    CREATED_LINKS+=("$dest")
+    CREATED_LINK_TARGETS+=("$source")
+    LINK_COUNT=$((LINK_COUNT + 1))
+    if [ -n "${INSTALL_SIGNAL_AFTER:-}" ] && [ "$INSTALL_SIGNAL_AFTER" -eq "$LINK_COUNT" ]; then kill "-${INSTALL_SIGNAL_KIND:-TERM}" "$$"; fi
+    if [ -n "${INSTALL_PAUSE_AFTER:-}" ] && [ "$INSTALL_PAUSE_AFTER" -eq "$LINK_COUNT" ]; then sleep 5; fi
+    if [ -n "${INSTALL_FAIL_AFTER:-}" ] && [ "$INSTALL_FAIL_AFTER" -eq "$LINK_COUNT" ]; then
+        log_error "Injected filesystem failure after $LINK_COUNT links"; return 1
+    fi
 }
 
 # ananicy-cpp runs as a system service with ProtectHome=yes, so it cannot
@@ -146,7 +229,34 @@ check_pipewire_status() {
 }
 
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CANONICAL_HOME=$(cd "$HOME" && pwd -P) || { log_error "Cannot resolve HOME"; exit 1; }
+HOME="$CANONICAL_HOME"
 CONFIG_DIR="$HOME/.config"
+
+if [ "${1:-}" = "--yes" ]; then
+    ASSUME_YES=true
+elif [ -n "${1:-}" ]; then
+    log_error "Unknown option: $1"
+    exit 2
+fi
+
+prompt_backup() {
+    [ "$ASSUME_YES" = true ] && return
+    if [ ! -t 0 ]; then
+        log_error "Non-interactive install requires explicit authorization: --yes"
+        exit 2
+    fi
+    echo
+    echo "Back up existing configuration before linking? (Y/n)"
+    tput civis 2>/dev/null
+    IFS= read -r -n 1 response || { tput cnorm 2>/dev/null; log_error "No backup authorization received"; exit 2; }
+    tput cnorm 2>/dev/null
+    echo
+    case "$response" in
+        ''|[yY]) ;;
+        *) log_error "Installation aborted: backups are required to preserve existing configuration."; exit 2 ;;
+    esac
+}
 
 # Validate environment
 check_system
@@ -163,49 +273,34 @@ if [ ! -d "$DOTFILES_DIR/kitty" ] && [ ! -d "$DOTFILES_DIR/hyprland" ]; then
     exit 1
 fi
 
-# Ask user if they want to backup existing files
-echo
-echo "Would you like to backup existing configuration files? (Y/n)"
-# Hide cursor during single character input
-tput civis 2>/dev/null
-read -n 1 -r response
-# Show cursor again
-tput cnorm 2>/dev/null
-echo  # Move to a new line after single character input
-if [[ "$response" =~ ^([nN][oO]|[nN])$ ]]; then
-    response="n"
-elif [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]] || [[ "$response" == "" ]]; then
-    response="y"
-else
-    response="n"
-fi
-if [[ "$response" =~ ^([yY])$ ]]; then
-    DO_BACKUPS=true
-fi
+prompt_backup
 
 log_info "Installing dotfiles..."
 log_info "Dotfiles directory: $DOTFILES_DIR"
 log_info "Config directory: $CONFIG_DIR"
 log_info "Backup existing files: $DO_BACKUPS"
 
+# Begin only after validation/prompt paths; failures from here roll back $HOME changes.
+TRANSACTION_ACTIVE=true
 # Create necessary directories if they don't exist
-mkdir -p "$CONFIG_DIR"
+ensure_directory "$CONFIG_DIR"
 
 shopt -s nullglob
 
 # Ask user if they want to install dependencies
-echo
-echo "Would you like to install required dependencies? (y/N)"
-# Hide cursor during single character input
-tput civis 2>/dev/null
-read -n 1 -r response
-# Show cursor again
-tput cnorm 2>/dev/null
-echo  # Move to a new line after single character input
-if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
-    response="y"
-else
-    response="n"
+response="n"
+if [ "$ASSUME_YES" != true ]; then
+    echo
+    echo "Would you like to install required dependencies? (y/N)"
+    tput civis 2>/dev/null
+    IFS= read -r -n 1 response || response="n"
+    tput cnorm 2>/dev/null
+    echo
+    if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+        response="y"
+    else
+        response="n"
+    fi
 fi
 if [[ "$response" =~ ^([yY])$ ]]; then
     # Check if pacman is available
@@ -244,7 +339,7 @@ check_dependencies
 
 # Link ananicy configs
 if [ -d "$DOTFILES_DIR/ananicy" ]; then
-    mkdir -p "$CONFIG_DIR/ananicy"
+    ensure_directory "$CONFIG_DIR/ananicy"
     
     # Link all files and directories in ananicy directory
     for item in "$DOTFILES_DIR/ananicy"/*; do
@@ -259,7 +354,7 @@ fi
 
 # Link hyprland configs to hypr directory
 if [ -d "$DOTFILES_DIR/hyprland" ]; then
-    mkdir -p "$CONFIG_DIR/hypr"
+    ensure_directory "$CONFIG_DIR/hypr"
     
     # Link all files and directories in hyprland directory
     for item in "$DOTFILES_DIR/hyprland"/*; do
@@ -273,7 +368,7 @@ fi
 # Link GTK configs
 for gtk_version in gtk-3.0 gtk-4.0; do
     if [ -d "$DOTFILES_DIR/$gtk_version" ]; then
-        mkdir -p "$CONFIG_DIR/$gtk_version"
+        ensure_directory "$CONFIG_DIR/$gtk_version"
         for file in "$DOTFILES_DIR/$gtk_version"/*; do
             if [ -f "$file" ]; then
                 filename=$(basename "$file")
@@ -285,13 +380,13 @@ done
 
 # Link imv config
 if [ -f "$DOTFILES_DIR/imv/config" ]; then
-    mkdir -p "$CONFIG_DIR/imv"
+    ensure_directory "$CONFIG_DIR/imv"
     create_symlink "$CONFIG_DIR/imv/config" "$DOTFILES_DIR/imv/config"
 fi
 
 # Link fastfetch config
 if [ -d "$DOTFILES_DIR/fastfetch" ]; then
-    mkdir -p "$CONFIG_DIR/fastfetch"
+    ensure_directory "$CONFIG_DIR/fastfetch"
     for file in "$DOTFILES_DIR/fastfetch"/*; do
         if [ -f "$file" ]; then
             filename=$(basename "$file")
@@ -302,7 +397,7 @@ fi
 
 # Link kitty configs
 if [ -d "$DOTFILES_DIR/kitty" ]; then
-    mkdir -p "$CONFIG_DIR/kitty"
+    ensure_directory "$CONFIG_DIR/kitty"
     for file in "$DOTFILES_DIR/kitty"/*; do
         if [ -f "$file" ]; then
             filename=$(basename "$file")
@@ -313,13 +408,13 @@ fi
 
 # Link mako config
 if [ -f "$DOTFILES_DIR/mako/config" ]; then
-    mkdir -p "$CONFIG_DIR/mako"
+    ensure_directory "$CONFIG_DIR/mako"
     create_symlink "$CONFIG_DIR/mako/config" "$DOTFILES_DIR/mako/config"
 fi
 
 # Link nvim configs
 if [ -d "$DOTFILES_DIR/nvim" ]; then
-    mkdir -p "$CONFIG_DIR/nvim"
+    ensure_directory "$CONFIG_DIR/nvim"
     
     # Link all files and directories in nvim directory
     for item in "$DOTFILES_DIR/nvim"/*; do
@@ -337,7 +432,7 @@ fi
 
 # Link starship config
 if [ -f "$DOTFILES_DIR/starship/starship.toml" ]; then
-    mkdir -p "$CONFIG_DIR/starship"
+    ensure_directory "$CONFIG_DIR/starship"
     create_symlink "$CONFIG_DIR/starship/starship.toml" "$DOTFILES_DIR/starship/starship.toml"
 fi
 
@@ -348,7 +443,7 @@ fi
 
 # Link waybar configs
 if [ -d "$DOTFILES_DIR/waybar" ]; then
-    mkdir -p "$CONFIG_DIR/waybar"
+    ensure_directory "$CONFIG_DIR/waybar"
     
     # Link all files and directories in waybar directory
     for item in "$DOTFILES_DIR/waybar"/*; do
@@ -357,7 +452,7 @@ if [ -d "$DOTFILES_DIR/waybar" ]; then
             
             # Special handling for scripts directory
             if [ "$filename" = "scripts" ] && [ -d "$item" ]; then
-                mkdir -p "$CONFIG_DIR/waybar/scripts"
+                ensure_directory "$CONFIG_DIR/waybar/scripts"
                 for script in "$item"/*; do
                     if [ -e "$script" ]; then
                         script_name=$(basename "$script")
@@ -373,7 +468,7 @@ fi
 
 # Link wofi configs
 if [ -d "$DOTFILES_DIR/wofi" ]; then
-    mkdir -p "$CONFIG_DIR/wofi"
+    ensure_directory "$CONFIG_DIR/wofi"
     for file in "$DOTFILES_DIR/wofi"/*; do
         if [ -f "$file" ]; then
             filename=$(basename "$file")
@@ -384,19 +479,19 @@ fi
 
 # Link zathura config
 if [ -f "$DOTFILES_DIR/zathura/zathurarc" ]; then
-    mkdir -p "$CONFIG_DIR/zathura"
+    ensure_directory "$CONFIG_DIR/zathura"
     create_symlink "$CONFIG_DIR/zathura/zathurarc" "$DOTFILES_DIR/zathura/zathurarc"
 fi
 
 # Install theme selector
 if [ -x "$DOTFILES_DIR/theme" ]; then
-    mkdir -p "$HOME/.local/bin"
+    ensure_directory "$HOME/.local/bin"
     create_symlink "$HOME/.local/bin/dotfiles-theme" "$DOTFILES_DIR/theme"
 fi
 
 # Link zsh configs
 if [ -d "$DOTFILES_DIR/zsh" ]; then
-    mkdir -p "$CONFIG_DIR/zsh"
+    ensure_directory "$CONFIG_DIR/zsh"
 
     for file in "$DOTFILES_DIR/zsh"/*; do
         [ -f "$file" ] || continue
@@ -434,18 +529,19 @@ if [ -d "$DOTFILES_DIR/zsh" ]; then
     fi
 fi
 
+TRANSACTION_ACTIVE=false
 log_info "Dotfiles installation complete!"
 
 # Verify some key links were created
-missing=""
+missing_links=""
 for link in "$CONFIG_DIR/kitty/kitty.conf" "$CONFIG_DIR/hypr/hyprland.lua" \
             "$CONFIG_DIR/nvim/init.lua" "$CONFIG_DIR/waybar/config.jsonc" \
             "$HOME/.zshrc"; do
-    [ -L "$link" ] || missing="$missing $link"
+    [ -L "$link" ] || missing_links="$missing_links $link"
 done
 
-if [ -z "$missing" ]; then
+if [ -z "$missing_links" ]; then
     log_info "Installation verified successfully!"
 else
-    log_warn "Installation completed, but these links are missing:$missing"
+    log_warn "Installation completed, but these links are missing:$missing_links"
 fi
